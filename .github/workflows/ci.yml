@@ -35,6 +35,7 @@ jobs:
         rm -rf ../.west
         west init -l .
         west update
-        export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+        # make sure we have sdk exported into the environment
+        /opt/toolchains/zephyr-sdk-0.14.2/setup.sh -t all -h -c
         west zephyr-export
         ./scripts/test
