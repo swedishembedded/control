@@ -1,4 +1,6 @@
-# Swedish Embedded Control Toolbox
+# Swedish Embedded Control Systems Toolbox
+
+![cover](pictures/cover.png)
 
 This is a control systems design library written in pure C that provides you
 with advanced algorithms for control, state estimation and model identification
@@ -6,13 +8,17 @@ specifically designed for use on embedded systems. It has been adopted for use
 with embedded systems and [Swedish Embedded Platform
 SDK](https://github.com/swedishembedded/sdk)
 
-It is fully compatible with Zephyr RTOS so you can simply add it as a module to
-your west.yml file and start using it.
+- Community: https://swedishembedded.com/community
+- Consulting: https://swedishembedded.com/consulting
+- Training: https://swedishembedded.com/tag/training
 
-This library is focused on practical numerical methods that work best in
-realtime embedded environment without any complex dependencies.
+It library is fully compatible with Zephyr RTOS so you can simply add it as a
+module to your west.yml file and start using it.
 
-This library uses no dynamic memory allocation. All operations are done on C
+It is focused on practical numerical methods that work best in realtime
+embedded environment without any complex dependencies.
+
+It uses no dynamic memory allocation. All operations are done on C
 arrays. The functions provided by this library are generic implementations that
 can be used to implement controllers that use specific array sizes.
 
