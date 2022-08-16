@@ -91,6 +91,43 @@ This library provides following functionality:
   - Recursive Least Square with forgetting factor and kalman filter identification
   - Square Root Unscented Kalman Filter for parameter estimation
 
+# Building and running examples
+
+The tests inside this repository are created to be buildable on top of Swedish
+Embedded Platform SDK. If you are using 'swedishembedded/build:latest' docker
+image then you should be able to simply run:
+
+```
+west init -l .
+west update
+./scripts/test
+```
+
+If you want to build locally, you should be able to do so by installing west,
+running west init and then installing the SDK dependencies locally:
+
+```
+pip3 install -g west
+mkdir workspace && cd workspace
+# it is important that you clone into a workspace!
+git clone git@github.com:swedishembedded/control.git
+west init -l .
+west update
+../sdk/scripts/install-sdk
+```
+
+This will install several different cross compilation toolchains and all the
+other tools you need in order to build firmware for a wide variety of
+architectures.
+
+To build and run individual tests on specific boards you can do like this:
+
+```
+west boards # list boards
+west build -p -b <board> tests/ai -t run # build and run
+west build -t run # do a subsequent run after building for the first time
+```
+
 # How to help to build on this control toolbox
 
 If you are interested in contributing to this library, feel free to raise a pull

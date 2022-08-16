@@ -32,7 +32,7 @@ jobs:
           lfs: true
     - name: Build everything
       run: |
-        - rm -rf ../.west
-        - west init -l .
-        - west update
-        - ./scripts/test
+        rm -rf ../.west
+        west init -l .
+        west update
+        ./scripts/test
