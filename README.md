@@ -160,7 +160,9 @@ opt for using the default gnuoctave implementations - but not both.
 |ica|Separate signals from each other so they are independent|Done
 
 ## Classification
+
 |Function|Description|Status
+|--------|-----------|------
 |Svm|Support Vector Machine with C code generation|Done
 |--------|-----------|------
 
@@ -288,10 +290,10 @@ These functions are used for control system design.
 # Tests
 
 This is a major TODO for this source code: there is a basic test framework in
-place, but we need actual tests that verify results. Currently the tests have
-form of examples which compile and run, but do not verify the results. We need
-to add Unity macros for checking test results. Unity is already supported, only
-the test assertions themselves need to be added.
+place, but we need actual automated tests that verify results. Currently the
+tests have form of examples which compile and run, but do not verify the
+results. We need to add Unity macros for checking test results. Unity is
+already supported, only the test assertions themselves need to be added.
 
 # Papers:
 
