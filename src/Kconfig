@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Martin Schröder <info@swedishembedded.com>
+# Consulting: https://swedishembedded.com/consulting
+# Training: https://swedishembedded.com/training
+
+config CONTROL
+	bool "Swedish Embedded control engineering library"
+	default y
+	depends on NEWLIB_LIBC || EXTERNAL_LIBC
+	help
+		Control engineering algorithm library

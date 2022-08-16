@@ -1,0 +1,26 @@
+image: swedishembedded/build:latest
+
+default:
+  tags:
+    - docker
+
+stages:
+ - build
+
+# This job builds applications
+build:
+    image: swedishembedded/build:latest
+    stage: build
+    artifacts:
+        paths:
+            - build-tests/coverage*
+        expire_in: 1 week
+        when: always
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    script:
+        - rm -rf ../.west
+        - west init -l .
+        - west update
+        - ./scripts/test
+

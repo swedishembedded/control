@@ -1,0 +1,54 @@
+# Ignore build artifacts
+/build*/
+/release/
+/twister-out*/
+/html*/
+/latex*/
+/CMakeCache.txt
+/doc/_build/
+*.so
+
+# Ignore test artifacts
+/log.html
+/report.html
+/output.xml
+
+# Ignore output of compliance checks
+/Codeowners.txt
+/Gitlint.txt
+/Identity.txt
+/Kconfig.txt
+/KconfigBasic.txt
+/Nits.txt
+/checkpatch.txt
+/compliance.xml
+/Codeowners.txt
+/pylint.txt
+
+# Ignore gdb history
+/.gdb_history
+
+# Ignore editor swap files (vim, emacs etc)
+*.swp
+*~
+
+# Ignore python environment
+.venv
+__pycache__/
+
+# Ignore generated west config
+/.west/config
+
+# CScope & Tags
+/cscope.files
+/cscope.out*
+/TAGS
+
+# VSCode
+/.vscode
+
+# Robot framework files
+/logs/
+/results*.robot.xml
+/robot_output.xml
+/snapshots/

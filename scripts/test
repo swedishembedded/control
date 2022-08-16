@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Martin Schröder <info@swedishembedded.com>
+
+ROOT="$(realpath $(dirname $BASH_SOURCE)/..)"
+
+set -e
+
+# Build tests and run them
+$ROOT/../zephyr/scripts/twister \
+        --integration \
+        --coverage \
+        --coverage-platform native_posix \
+        -c \
+        -O build-tests \
+        -v \
+        -i \
+        -T tests || {
+        echo "Error while trying to build project"
+        exit 1
+}
+
