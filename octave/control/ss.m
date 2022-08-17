@@ -63,6 +63,4 @@ function [sys] = ss(varargin)
 	sys.type = 'SS';
 	%Sampel time
 	sys.sampleTime = 0;
-
-
 end
