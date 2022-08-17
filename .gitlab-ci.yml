@@ -22,5 +22,6 @@ build:
         - rm -rf ../.west
         - west init -l .
         - west update
+        - ./scripts/check
         - ./scripts/test
 
