@@ -12,3 +12,4 @@ manifest:
     - name: sdk
       remote: swedishembedded
       revision: main
+      import: true

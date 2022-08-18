@@ -19,9 +19,10 @@ build:
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     script:
+        - mkdir build && cd build && cmake .. && make && cd ..
         - rm -rf ../.west
+        - rm -rf ../sdk
         - west init -l .
         - west update
-        - mkdir build && cd build && cmake .. && make && cd ..
         - ./scripts/check
         - ./scripts/test
