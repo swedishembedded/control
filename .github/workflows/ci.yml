@@ -33,7 +33,8 @@ jobs:
     - name: Build everything
       run: |
         mkdir build && cd build && cmake .. && make && cd ..
-        rm -rf ../.west
+        [[ -d ../sdk ]] && rm -rf ../sdk
+        [[ -d ../.west ]] && rm -rf ../.west
         west init -l .
         west update
         # make sure we have sdk exported into the environment
