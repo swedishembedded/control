@@ -39,8 +39,8 @@ jobs:
             cpack && \
             cd ..
     - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
+      uses: actions/upload-artifact@v3
+      with:
           name: package
           path: |
             build/*.deb
