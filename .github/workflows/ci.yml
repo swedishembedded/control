@@ -32,10 +32,15 @@ jobs:
           lfs: true
     - name: Build everything
       run: |
-        rm -rf ../.west
-        west init -l .
-        west update
-        # make sure we have sdk exported into the environment
-        /opt/toolchains/zephyr-sdk-0.14.2/setup.sh -t all -h -c
-        west zephyr-export
-        ./scripts/test
+        mkdir build && \
+            cd build && \
+            cmake .. && \
+            make && \
+            cpack && \
+            cd ..
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+          name: package
+          path: |
+            build/*.deb
