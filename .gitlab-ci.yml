@@ -22,6 +22,6 @@ build:
         - rm -rf ../.west
         - west init -l .
         - west update
-        - mkdir build && pushd build && cmake .. && make && popd
+        - mkdir build && cd build && cmake .. && make && cd ..
         - ./scripts/check
         - ./scripts/test
