@@ -13,16 +13,15 @@ build:
     stage: build
     artifacts:
         paths:
-            - build-tests/coverage*
+            - build/*.deb
         expire_in: 1 week
         when: always
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     script:
-        - mkdir build && cd build && cmake .. && make && cd ..
-        - rm -rf ../.west
-        - rm -rf ../sdk
-        - west init -l .
-        - west update
-        - ./scripts/check
-        - ./scripts/test
+        - mkdir build && \
+          cd build && \
+          cmake .. && \
+          make && \
+          cpack && \
+          cd ..

@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.12.2)
 
-project (control VERSION 1.0.1)
+project (libcontrol VERSION 1.0.1)
 
 set(SOURCES
     src/optimization/linprog.c
