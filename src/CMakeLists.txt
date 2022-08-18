@@ -1,4 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright 2022 Martin Schröder <info@swedishembedded.com>
+# This CMake file is for Zephyr use.
+if(CONFIG_CONTROL)
+
+zephyr_include_directories(../include)
 
 zephyr_library()
 zephyr_library_sources_ifdef(CONFIG_CONTROL optimization/linprog.c)
@@ -59,3 +64,5 @@ zephyr_library_sources_ifdef(CONFIG_CONTROL sysid/era.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL sysid/rls.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL
                              sysid/sr_ukf_parameter_estimation.c)
+
+endif()

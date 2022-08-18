@@ -33,7 +33,7 @@ function [sys] = ss(varargin)
 	end
 
 	if(length(varargin) < 4)
-		sprintf('C matrix assumed to be a diagonal %ix%i matrix', size(varargin{2}, 1),size(varargin{2}, 2))
+		% sprintf('C matrix assumed to be a diagonal %ix%i matrix', size(varargin{2}, 1),size(varargin{2}, 2))
 		sys.C = eye(size(varargin{2}, 1));
 	else
 		sys.C = varargin{4};
@@ -44,7 +44,7 @@ function [sys] = ss(varargin)
 	end
 
 	if(length(varargin) < 5)
-		sprintf('D matrix assumed to be a zero %ix%i matrix', size(sys.C, 1), size(sys.B, 2))
+		% sprintf('D matrix assumed to be a zero %ix%i matrix', size(sys.C, 1), size(sys.B, 2))
 		sys.D = zeros(size(sys.C, 1), size(sys.B, 2));
 	else
 		sys.D = varargin{5};
