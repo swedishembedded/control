@@ -1,5 +1,4 @@
 = Swedish Embedded Control Systems Toolbox: swedishembedded.com/sdk
-
 :stem: latexmath
 :math:
 

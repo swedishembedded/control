@@ -39,18 +39,6 @@ particular profile. After you have planned a move, you can get the traversal
 time using ${link("motion_profile_get_traversal_time")} function.
 
 
-== API Reference
-
-${insert("motion_profile_state_t", leveloffset="+2")}
-
-${insert("motion_profile_init", leveloffset="+2")}
-
-${insert("motion_profile_plan_move", leveloffset="+2")}
-
-${insert("motion_profile_get_pva", leveloffset="+2")}
-
-${insert("motion_profile_get_traversal_time", leveloffset="+2")}
-
 == Method description
 
 This section describes equations that one can use to calculate position and
@@ -77,17 +65,17 @@ find a solution to the following set of equations:
 
 [stem]
 ++++
-    0 = (acc * t_1^2) / 2 + (dec * t_2^2) / 2 - dist + t_1 * vstart + t_2 * vmax + t_3 * vend
+0 = (acc * t_1^2) / 2 + (dec * t_2^2) / 2 - dist + t_1 * vstart + t_2 * vmax + t_3 * vend
 ++++
 
 [stem]
 ++++
-    0 = acc * t_1 - dec * t_3 - vend + vstart
+0 = acc * t_1 - dec * t_3 - vend + vstart
 ++++
 
 [stem]
 ++++
-    0 = acc * t_1 - vmax + vstart
+0 = acc * t_1 - vmax + vstart
 ++++
 
 Not only that, but we also want our solution to work in both positive and
@@ -323,3 +311,15 @@ That’s it.
 	plot(T, X)
 	input("press any key")
 --
+
+== API Reference
+
+${insert("motion_profile_state_t", leveloffset="+2")}
+
+${insert("motion_profile_init", leveloffset="+2")}
+
+${insert("motion_profile_plan_move", leveloffset="+2")}
+
+${insert("motion_profile_get_pva", leveloffset="+2")}
+
+${insert("motion_profile_get_traversal_time", leveloffset="+2")}
