@@ -27,6 +27,7 @@ zephyr_library_sources_ifdef(CONFIG_CONTROL controller/theta2ss.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL controller/kalman.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL controller/c2d.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL controller/stability.c)
+zephyr_library_sources_ifdef(CONFIG_CONTROL motion/motion_profile.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL filter/filtfilt.c)
 zephyr_library_sources_ifdef(CONFIG_CONTROL
                              filter/sr_ukf_state_estimation.c)

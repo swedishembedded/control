@@ -1,0 +1,5 @@
+[packages]
+
+[packages.control]
+type = "local"
+package_dir = "${CMAKE_BINARY_DIR}"

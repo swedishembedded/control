@@ -14,15 +14,23 @@ build:
     artifacts:
         paths:
             - build/*.deb
+            - build/index.pdf
         expire_in: 1 week
         when: always
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     script:
-        - mkdir build && \
-          cd build && \
-          cmake .. && \
-          make && \
-          cpack && \
+        - ruby -v
+        - apt update &&
+          apt install -qy libgtest-dev
+        - mkdir build &&
+          cd build &&
+          cmake
+            -D"CMAKE_CXX_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage"
+            -D"CMAKE_C_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage" .. &&
+          make &&
+          make test &&
+          ctest -T Coverage &&
+          ../scripts/coverage
+          cpack &&
           cd ..
-
