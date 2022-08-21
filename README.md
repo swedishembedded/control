@@ -91,6 +91,17 @@ This library provides following functionality:
   - Recursive Least Square with forgetting factor and kalman filter identification
   - Square Root Unscented Kalman Filter for parameter estimation
 
+# Building locally
+
+The library core library should build just fine using the standard cmake
+approach:
+
+```
+mkdir build
+cmake ..
+make && make test
+```
+
 # Building and running examples
 
 The tests inside this repository are created to be buildable on top of Swedish
@@ -126,6 +137,27 @@ To build and run individual tests on specific boards you can do like this:
 west boards # list boards
 west build -p -b <board> tests/ai -t run # build and run
 west build -t run # do a subsequent run after building for the first time
+```
+
+# Building documentation
+
+``` shell
+  apt update &&  
+    apt install -qy 
+    libglib2.0-dev
+    libglib2.0-dev-bin
+    libgtest-dev
+    ruby2.7-dev
+    libcairo2-dev
+    libpango1.0-dev
+    libgdk-pixbuf2.0-dev
+    libxml2-dev
+  pip install asciidoxy
+  gem install asciidoctor-mathematical
+  mkdir build &&
+    cd build &&
+    cmake .. &&
+    make docs
 ```
 
 # How to help to build on this control toolbox
@@ -323,6 +355,7 @@ These functions are used for control system design.
 |-------------|-----------|------|----|-----|--------
 |smithpredict|Otto Smith delay compensator|Done|No|Y/N|Y
 |imc|Disturbance compensator|Done|No|Y/N|Y
+
 
 # Tests
 

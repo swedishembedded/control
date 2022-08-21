@@ -8,6 +8,8 @@ cmake_minimum_required(VERSION 3.12.2)
 
 project (libcontrol VERSION 1.0.1)
 
+include(CTest)
+
 set(SOURCES
     src/optimization/linprog.c
     src/misc/insert.c
@@ -30,6 +32,7 @@ set(SOURCES
     src/controller/kalman.c
     src/controller/c2d.c
     src/controller/stability.c
+    src/motion/motion_profile.c
     src/filter/filtfilt.c
     src/filter/sr_ukf_state_estimation.c
     src/filter/mcs.c
@@ -72,6 +75,50 @@ target_include_directories( control
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
+add_subdirectory(tests)
+
+set(DOXYGEN_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include)
+
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/packages.toml.in
+    ${CMAKE_BINARY_DIR}/packages.toml
+)
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/contents.toml.in
+    ${CMAKE_BINARY_DIR}/contents.toml
+)
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/Doxyfile.in
+    ${CMAKE_BINARY_DIR}/Doxyfile
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/build/output/index.adoc
+    COMMAND doxygen ${CMAKE_BINARY_DIR}/Doxyfile &&
+            asciidoxy --spec-file ${CMAKE_BINARY_DIR}/packages.toml -b adoc ${CMAKE_CURRENT_LIST_DIR}/doc/index.adoc
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/index.pdf
+    DEPENDS
+        ${CMAKE_CURRENT_LIST_FILE}
+        ${CMAKE_BINARY_DIR}/build/output/index.adoc
+    COMMAND asciidoctor-pdf
+        -a pdf-themesdir=${PROJECT_SOURCE_DIR}/theme/
+        -a pdf-theme=tutorial.yml
+        -a pdf-fontsdir=${PROJECT_SOURCE_DIR}/theme/fonts
+        -a iconsdir=${PROJECT_SOURCE_DIR}/theme/icons
+        -r asciidoctor-mathematical
+        -d book
+        -D ${PROJECT_BINARY_DIR}
+        -o index.pdf
+        --failure-level=ERROR
+        ${CMAKE_BINARY_DIR}/build/output/index.adoc
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+
+add_custom_target(docs DEPENDS ${CMAKE_BINARY_DIR}/index.pdf)
 install(TARGETS control
     COMPONENT linapp
     RUNTIME DESTINATION "/usr/"
