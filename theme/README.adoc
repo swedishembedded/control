@@ -1,0 +1,53 @@
+= asciidoctor-pdf-tutorial-theme
+
+This is a custom theme for `asciidoctor-pdf` for producing technical 
+documentation and tutorials with a modern look.
+
+== Status
+
+This repo is work in progress as not all layouts have been fully evaluated yet.
+
+== Usage 
+
+Clone the repo to some directory, preferably within your document project e.g. `tutorial`.
+
+[source,shell]
+----
+git submodule add \
+  https://github.com/uroesch/asciidoctor-pdf-tutorial-theme \
+  tutorial
+----
+
+Run `asciidoctor-pdf` with the following additional options:
+
+[source,shell]
+----
+asciidoctor-pdf \
+  -a pdf-stylesdir=tutorial \
+  -a pdf-style=tutorial.yml \
+  -a pdf-fontsdir=tutorial/fonts \
+  -a iconsdir=tutorial/icons \
+  "book.adoc"
+----
+
+=== Sample PDFs
+
+Sample PDFs generated from the `syntax.adoc`.
+
+[cols="1,1",options="header"]
+|===
+
+| Doctype
+| Link
+
+| Book 
+a| link:samples/book.pdf[Book sample PDF]
+
+| Article
+a| link:samples/article.pdf[Article sample PDF]
+
+| Man page
+a| link:samples/manpage.pdf[Man page sample PDF]
+
+|===
+

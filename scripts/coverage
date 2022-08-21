@@ -1,0 +1,5 @@
+#!/bin/bash
+
+lcov -c -i -d . -o coverage.info
+lcov -c -d . -o coverage.info
+genhtml -o coverage coverage.info 

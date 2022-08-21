@@ -1,0 +1,4 @@
+add_executable(MotionProfileTest src/MotionProfileTest.cpp)
+target_link_libraries(MotionProfileTest control gtest pthread)
+add_test(NAME MotionProfileTest
+         COMMAND MotionProfileTest)

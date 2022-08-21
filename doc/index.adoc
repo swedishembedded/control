@@ -1,0 +1,6 @@
+= Swedish Embedded Control Systems Toolbox: swedishembedded.com/sdk
+
+:stem: latexmath
+:math:
+
+${include("motion_profile/index.adoc", leveloffset="+1")}

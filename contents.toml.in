@@ -1,0 +1,9 @@
+[package]
+name = "control"
+
+[asciidoc]
+src_dir = "${CMAKE_CURRENT_LIST_DIR}/doc"
+
+[reference]
+type = "doxygen"
+dir = "${CMAKE_BINARY_DIR}/xml"
