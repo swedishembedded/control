@@ -20,17 +20,5 @@ build:
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     script:
-        - ruby -v
-        - apt update &&
-          apt install -qy libgtest-dev
-        - mkdir build &&
-          cd build &&
-          cmake
-            -D"CMAKE_CXX_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage"
-            -D"CMAKE_C_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage" .. &&
-          make &&
-          make test &&
-          ctest -T Coverage &&
-          ../scripts/coverage
-          cpack &&
-          cd ..
+        - ./scripts/init
+        - ./scripts/build
