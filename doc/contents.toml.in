@@ -2,7 +2,7 @@
 name = "control"
 
 [asciidoc]
-src_dir = "${CMAKE_CURRENT_LIST_DIR}/doc"
+src_dir = "${CMAKE_CURRENT_LIST_DIR}"
 
 [reference]
 type = "doxygen"

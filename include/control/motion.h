@@ -48,7 +48,8 @@ struct motion_profile {
  * \param[in] max_speed Maximum velocity while moving
  * \param[in] max_dec Maximum rate of deceleration at the end
  **/
-void motion_profile_init(struct motion_profile *self, float max_acc, float max_speed, float max_dec);
+void motion_profile_init(struct motion_profile *self, float max_acc, float max_speed,
+			 float max_dec);
 
 /**
  * \brief Generates a motion plan
@@ -58,7 +59,8 @@ void motion_profile_init(struct motion_profile *self, float max_acc, float max_s
  * \param[in] target_pos Destination position
  * \param[in] target_pos Destination velocity
  **/
-void motion_profile_plan_move(struct motion_profile *self, float current_pos, float current_vel, float target_pos, float target_vel);
+void motion_profile_plan_move(struct motion_profile *self, float current_pos, float current_vel,
+			      float target_pos, float target_vel);
 
 /**
  * \brief Retrieves position, velocity and acceleration setpoint for time
@@ -69,7 +71,8 @@ void motion_profile_plan_move(struct motion_profile *self, float current_pos, fl
  * \param[out] acc_sp current acceleration setpoint
  * \returns state of current profile
  **/
-motion_profile_state_t motion_profile_get_pva(struct motion_profile *self, float time, float *pos_sp, float *vel_sp, float *acc_sp);
+motion_profile_state_t motion_profile_get_pva(struct motion_profile *self, float time,
+					      float *pos_sp, float *vel_sp, float *acc_sp);
 
 /**
  * \brief Retrieves total profile traversal time given init settings

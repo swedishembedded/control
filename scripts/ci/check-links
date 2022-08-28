@@ -1,0 +1,44 @@
+#!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
+# Consulting: https://swedishembedded.com/go
+# Training: https://swedishembedded.com/tag/training
+
+ROOT="$(realpath $(dirname $BASH_SOURCE)/../..)"
+
+set -e
+
+ERROR=0
+for FILE in `git ls-files \
+	"*CMakeLists.txt" \
+	"*.cmake" \
+	"*Kconfig" \
+	"*.robot" \
+	"*prj.conf" \
+	"*.c" \
+	"*.h" \
+	"*.cs" \
+	"*.cpp" \
+	"*.yaml" \
+	"*.dts" \
+	"*.overlay" \
+	"*.rst"
+`; do
+	grep "Copyright " ${FILE} > /dev/null || {
+		echo "$FILE: no copyright information"
+		ERROR=1
+	}
+	grep "SPDX-License-Identifier: " ${FILE} > /dev/null || {
+		echo "$FILE: no SPDX license"
+		ERROR=1
+	}
+	grep "Consulting: " ${FILE} > /dev/null || {
+		echo "$FILE: no consulting offer"
+		ERROR=1
+	}
+	grep "Training: " ${FILE} > /dev/null || {
+		echo "$FILE: no training offer"
+		ERROR=1
+	}
+done
+
+exit $ERROR
