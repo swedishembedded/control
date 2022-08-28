@@ -57,7 +57,7 @@ void motion_profile_init(struct motion_profile *self, float max_acc, float max_s
  * \param[in] current_pos Starting position
  * \param[in] current_vel Starting velocity
  * \param[in] target_pos Destination position
- * \param[in] target_pos Destination velocity
+ * \param[in] target_vel Destination velocity
  **/
 void motion_profile_plan_move(struct motion_profile *self, float current_pos, float current_vel,
 			      float target_pos, float target_vel);

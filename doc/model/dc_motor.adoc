@@ -1,0 +1,113 @@
+= DC Motor
+
+The DC motor model is based on continuous time model of a DC motor:
+
+First lets define some variables:
+
+[source,plaintext]
+--
+J: Moment of inertia of the rotor     kg.m^2
+b: Motor viscous friction constant    N.m.s
+K: Electromotive force constant       V/rad/sec
+R: Electric resistance                Ohm
+L: Electric inductance                H
+Ts: Sampling time for the discrete system
+x[0]: Angular velocity state (Rad/s)
+x[1]: Motor current state (A)
+y[0]: Output: Angular velocity (Rad/sec)
+u[0]: Input: Motor voltage (V)
+--
+
+State vector:
+
+[stem]
+++++
+x = \begin{bmatrix} x0 \\ x1 \end{bmatrix}
+++++
+
+State transition matrix:
+
+[stem]
+++++
+A = \begin{bmatrix} -b/J & K/J \\ -K/L & -R/L \end{bmatrix}
+++++
+
+Input to state matrix:
+
+[stem]
+++++
+B = \begin{bmatrix} 0 & \frac{1}{L} \end{bmatrix}
+++++
+
+State to output matrix:
+
+[stem]
+++++
+C = \begin{bmatrix} 1 & 0 \end{bmatrix}
+++++
+
+Input to output matrix:
+
+[stem]
+++++
+D = \begin{bmatrix} 0 \end{bmatrix}
+++++
+
+This model is then converted to discrete form through bilinear transformation:
+
+Discrete A matrix:
+
+[stem]
+++++
+Ad = (I - A * Ts)^-1
+++++
+
+Discrete B matrix:
+
+[stem]
+++++
+Bd = A^-1 * (Ad - I) * B
+++++
+
+The remaining two matrices are kept the same.
+
+[source,octave]
+----
+syms s J b K R L z Ts
+A = [-b/J   K/J;
+    -K/L   -R/L];
+B = [0;
+    1/L];
+C = [1   0];
+D = 0;
+Ad = simplify(sym(inv(eye(size(A)) - A * Ts)))
+Bd = simplify(sym(inv(A) * (Ad - eye(size(A))) * B))
+factor(Ad, J)
+----
+
+The resulting system looks like this:
+
+Assume:
+
+[stem]
+++++
+a = J * (J + R * Ts)
+++++
+
+[stem]
+++++
+b = K^2 * Ts^2 + L * Ts * b + R * Ts^2 * b
+++++
+
+State transition:
+
+[stem]
+++++
+Ad = \begin{bmatrix} \frac{a}{a + b} & \frac{K * L * Ts}{a + b} \\ \frac{-J *
+K * Ts}{a + b} & \frac{L * (J + Ts * b)}{a + b} \end{bmatrix}
+++++
+
+[stem]
+++++
+Bd = \begin{bmatrix} \frac{K * Ts^2}{a + b} \\ \frac{Ts * (J + Ts * b)}{a + b} \end{bmatrix}
+++++
