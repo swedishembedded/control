@@ -1,0 +1,17 @@
+.checkpatch.conf		@mkschreder
+/CMakeLists.txt		@mkschreder
+/LICENSE		@mkschreder
+/README.md		@mkschreder
+/data/		@mkschreder
+/doc/		@mkschreder
+/include/		@mkschreder
+/integrity/		@mkschreder
+/octave/		@mkschreder
+/pictures/		@mkschreder
+/reports/		@mkschreder
+/scripts/		@mkschreder
+/src/		@mkschreder
+/src/controller/		@mkschreder
+/tests/		@mkschreder
+/zephyr/		@mkschreder
+CODEOWNERS		@mkschreder

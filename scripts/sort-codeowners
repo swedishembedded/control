@@ -4,11 +4,8 @@
 # Consulting: https://swedishembedded.com/go
 # Training: https://swedishembedded.com/tag/training
 
-[[ -d build ]] && rm -rf build
+ROOT="$(realpath $(dirname $BASH_SOURCE)/..)"
 
-mkdir -p build
-cd build
-cmake ..
-make
-cpack
-cd ..
+LC_ALL=C sort -u -o \
+	${ROOT}/CODEOWNERS \
+	${ROOT}/CODEOWNERS

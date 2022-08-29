@@ -5,7 +5,8 @@ extern "C" {
 #include "control/motion.h"
 };
 
-TEST(MotionProfile, ShouldInitializeAbsoluteQuantities) {
+TEST(MotionProfile, ShouldInitializeAbsoluteQuantities)
+{
 	struct motion_profile p;
 	motion_profile_init(&p, -1, -2, -3);
 	ASSERT_FLOAT_EQ(1, p.acc);
@@ -13,7 +14,8 @@ TEST(MotionProfile, ShouldInitializeAbsoluteQuantities) {
 	ASSERT_FLOAT_EQ(3, p.dec);
 }
 
-TEST(MotionProfile, ShouldPlanForwardMoveCorrectly) {
+TEST(MotionProfile, ShouldPlanForwardMoveCorrectly)
+{
 	struct motion_profile p;
 	float pos, vel, acc;
 
@@ -42,7 +44,8 @@ TEST(MotionProfile, ShouldPlanForwardMoveCorrectly) {
 	ASSERT_FLOAT_EQ(0, acc);
 }
 
-TEST(MotionProfile, ShouldPlanReverseMoveCorrectly) {
+TEST(MotionProfile, ShouldPlanReverseMoveCorrectly)
+{
 	struct motion_profile p;
 	float pos, vel, acc;
 
@@ -65,7 +68,8 @@ TEST(MotionProfile, ShouldPlanReverseMoveCorrectly) {
 	ASSERT_FLOAT_EQ(6, motion_profile_get_traversal_time(&p));
 
 	// check that we are stopped at the end
-	int state = motion_profile_get_pva(&p, motion_profile_get_traversal_time(&p), &pos, &vel, &acc);
+	int state =
+		motion_profile_get_pva(&p, motion_profile_get_traversal_time(&p), &pos, &vel, &acc);
 	ASSERT_FLOAT_EQ(3, pos);
 	ASSERT_FLOAT_EQ(0, vel);
 	ASSERT_FLOAT_EQ(0, acc);
@@ -73,7 +77,8 @@ TEST(MotionProfile, ShouldPlanReverseMoveCorrectly) {
 	ASSERT_EQ(state, MOTION_PROFILE_COMPLETED);
 }
 
-TEST(MotionProfile, ShouldPlanTriangularMoveCorrectly) {
+TEST(MotionProfile, ShouldPlanTriangularMoveCorrectly)
+{
 	// a triangular move is one that never reaches maximum velocity
 	struct motion_profile p;
 	float pos, vel, acc;
@@ -97,7 +102,8 @@ TEST(MotionProfile, ShouldPlanTriangularMoveCorrectly) {
 	ASSERT_FLOAT_EQ(2, motion_profile_get_traversal_time(&p));
 }
 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+int main(int argc, char **argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }
