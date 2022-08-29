@@ -13,6 +13,7 @@ build:
     stage: build
     artifacts:
         paths:
+            - build/*.deb
             - build/index.pdf
         expire_in: 1 week
         when: always

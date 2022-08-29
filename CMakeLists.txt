@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.12.2)
 
-project (control VERSION 0.1.1)
+project (control VERSION 0.34.0)
 
 include(CTest)
 

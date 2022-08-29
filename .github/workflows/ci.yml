@@ -36,3 +36,9 @@ jobs:
         ./scripts/check
         ./scripts/build
         ./scripts/test
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+          name: package
+          path: |
+            build/*.deb
