@@ -2,4 +2,6 @@
 :stem: latexmath
 :math:
 
+${include("model/index.adoc", leveloffset="+1")}
+
 ${include("motion_profile/index.adoc", leveloffset="+1")}

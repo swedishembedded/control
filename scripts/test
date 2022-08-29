@@ -8,7 +8,11 @@
 
 mkdir -p build
 cd build
-cmake ..
-make
-cpack
+cmake \
+	-D"CMAKE_CXX_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage" \
+	-D"CMAKE_C_FLAGS=-g -O2 -w -fprofile-arcs -ftest-coverage" ..
+make -j4
+make test
+ctest -T Coverage
+../scripts/coverage
 cd ..

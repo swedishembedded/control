@@ -1,0 +1,19 @@
+#!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
+# Consulting: https://swedishembedded.com/go
+# Training: https://swedishembedded.com/tag/training
+
+set -e
+
+if [[ ! "$1" ]]; then
+	echo "Usage: $0 <file>"
+	exit 1
+fi
+
+# check that file is sorted
+LC_ALL=C sort --check $1 || {
+    echo "File $1 is not sorted";
+    echo "Run: LC_ALL=C sort -u -o $1 $1"
+    exit 1
+}
+

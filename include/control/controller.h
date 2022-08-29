@@ -9,6 +9,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+struct pid {
+	float x[3];
+	float y[3];
+	float Kp, Ki, Kd, d;
+};
+
+void pid_init(struct pid *self);
+void pid_set_gains(struct pid *self, float Kp, float Ki, float Kd, float d);
+float pid_step(struct pid *self, float e);
+
 void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8_t ADIM,
 	 uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT,
 	 bool has_integration);

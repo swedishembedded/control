@@ -21,4 +21,6 @@ build:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     script:
         - ./scripts/init
+        - ./scripts/check
         - ./scripts/build
+        - ./scripts/test

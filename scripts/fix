@@ -1,0 +1,107 @@
+#!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2022 Martin Schröder <info@swedishembedded.com>
+# Consulting: https://swedishembedded.com/go
+# Training: https://swedishembedded.com/tag/training
+
+set -e
+
+print_usage(){
+	echo "Usage: $1 -c <commits> -h -v"
+}
+
+# Default commit range is all of the repository
+COMMIT_RANGE="$(git rev-list HEAD | tail -n 1)..HEAD"
+VERBOSE=0
+
+# Parse arguments (standard way of doing it in bash)
+while [[ $# -gt 0 ]]; do
+    case $1 in
+	-a|--all)
+		COMMIT_RANGE="$(git rev-list HEAD | tail -n 1)..HEAD"
+		shift
+		;;
+    -c|--commits)
+        COMMIT_RANGE="$2"
+        shift
+        shift
+        ;;
+    -v|--verbose)
+        VERBOSE=1
+        shift
+        ;;
+    -*|--*)
+        echo "Unknown option: $1"
+        print_usage
+        exit 1
+        ;;
+    -h|--help)
+        print_usage
+        exit 0
+        ;;
+    *)
+        POS_ARGS+=("$1")
+        shift
+        ;;
+    esac
+done
+
+echo -e "Looking for things to fix in COMMIT_RANGE: ${COMMIT_RANGE}"
+git log --oneline --graph --decorate --abbrev-commit ${COMMIT_RANGE}
+echo -e "---------------------------------------------------"
+
+fix_file_formatting(){
+	FILE=$1
+	if [[ $FILE == *.py ]]; then
+		echo "Formatting python script: $FILE"
+		black $FILE || {
+			echo "Fixing formatting of $FILE failed"
+			echo "You'll have to fix this manually"
+			return 1
+		}
+	elif [[ $FILE == *.c ]] ||
+		[[ $FILE == *.cpp ]] ||
+		[[ $FILE == *.h ]]; then
+		echo "Formatting source file: $FILE"
+		clang-format -i --style=file -Werror --fallback-style=none $FILE || {
+			echo "Fixing formatting of $FILE failed"
+			echo "You'll have to fix this manually"
+			return 1
+		}
+	elif [[ $FILE == */CMakeLists.txt ]] || [[ $FILE == *.cmake ]]; then
+		echo "Formatting cmake file: $FILE"
+		cmake-format --first-comment-is-literal -i $FILE || {
+			echo "Fixing formatting of $FILE failed"
+			echo "You'll have to fix this manually"
+			return 1
+		}
+	fi
+}
+
+# Check file formatting for added and modified files
+for FILE in `git diff --cached --name-status | grep "^[AM]" | cut -f 2`; do
+	fix_file_formatting $FILE || {
+		exit 1
+	}
+done
+
+# Check file formatting for renamed files
+for FILE in `git diff --cached --name-status | grep "^[R]" | cut -f 3`; do
+	fix_file_formatting $FILE || {
+		exit 1
+	}
+done
+
+# Check file formatting for added and modified files
+for FILE in `git diff --name-status $COMMIT_RANGE | grep "^[AM]" | cut -f 2`; do
+	fix_file_formatting $FILE || {
+		exit 1
+	}
+done
+
+# Check file formatting for renamed files
+for FILE in `git diff --name-status $COMMIT_RANGE | grep "^[R]" | cut -f 3`; do
+	fix_file_formatting $FILE || {
+		exit 1
+	}
+done
