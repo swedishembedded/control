@@ -20,7 +20,7 @@
  * P [m*n]
  * n == m
  */
-void dlyap(float *A, float *P, float *Q, uint16_t row)
+void dlyap(const float *const A, float *P, const float *const Q, uint16_t row)
 {
 	// Create an zero large matrix M
 	float M[row * row * row * row]; // row_a^2 * row_a^2

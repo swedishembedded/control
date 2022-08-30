@@ -1,0 +1,30 @@
+${insert("balance")}
+
+The errors in calculating the eigenvalues of a square real matrix are
+proportional to the Frobenius norm of the matrix. Frobenius norm can be defined
+as a trace of square of the matrix (trace is sum of elements of the diagonal
+elements):
+
+[stem]
+++++
+||A|| = \sqrt{trace(A*A)}
+++++
+
+The process of producing a matrix that is diagonally similar to the input matrix
+which reduces the matrix norm is called "balancing the matrix".
+
+This function transforms a matrix:
+
+
+[latexmath]
+++++
+\begin{bmatrix} -0.1 & 10.0 \\ -1.0 & 5.0 \end{bmatrix}
+++++
+
+Into a balanced matrix:
+
+
+[stem]
+++++
+\begin{bmatrix} -0.1 & 2.5 \\ -4.0 & 5.0 \end{bmatrix}
+++++

@@ -1,6 +1,23 @@
 = Swedish Embedded Control Systems Toolbox: swedishembedded.com/sdk
 :stem: latexmath
-:math:
+:math: latexmath
+
+== Method call convention
+
+All methods that are part of this library must adhere to following rules:
+
+- A method may not modify input variables. All input variables should be
+  declared const in the argument list.
+
+- A method must support passing one of the input variables as output (ie tran(A,
+  A) would mean transpose A and put result in A).
+
+- All matrix and vector parameters must follow their mathematical notation.
+  xout = Ax + Bu should translate to method(xout, A, x, B, u, size params...)
+
+Following these rules makes the code both easier to maintain and use.
+
+${include("linalg/index.adoc", leveloffset="+1")}
 
 ${include("model/index.adoc", leveloffset="+1")}
 

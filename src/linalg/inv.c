@@ -10,57 +10,10 @@
 #include <math.h>
 #include <float.h>
 #include <string.h>
+#include <errno.h>
 #include <control/linalg.h>
 
-static uint8_t solve(float A[], float x[], float b[], uint8_t P[], float LU[], uint16_t row);
-
-/*
- * A to A^(-1)
- * Notice that only square matrices are only allowed.
- * Finding inverse should only be used for last solution.
- * Finding inverse is very cost expensive. Better to solve Ax=b instead
- * A[m*n]
- * n == m
- * Returns 1 == Success
- * Returns 0 == Fail
- */
-uint8_t inv(float A[], uint16_t row)
-{
-	// Create iA matrix
-	float iA[row * row];
-
-	// Create temporary matrix and status variable
-	float tmpvec[row];
-
-	memset(tmpvec, 0, row * sizeof(float));
-
-	uint8_t status = 0;
-
-	// Check if the determinant is 0
-	float LU[row * row];
-	uint8_t P[row];
-
-	status = lup(A, LU, P, row);
-	if (status == 0)
-		return 0; // matrix is singular. Determinant 0
-	// Create the inverse
-	for (uint16_t i = 0; i < row; i++) {
-		tmpvec[i] = 1.0f;
-		if (!solve(A, &iA[row * i], tmpvec, P, LU, row))
-			return 0; // We divided with zero
-		tmpvec[i] = 0.0f;
-	}
-
-	// Transpose of iA
-	tran(iA, row, row);
-
-	// Copy over iA -> A
-	memcpy(A, iA, row * row * sizeof(float));
-
-	return status;
-}
-
-static uint8_t solve(float A[], float x[], float b[], uint8_t P[], float LU[], uint16_t row)
+static int solve(const float *const LU, float *x, float *b, uint8_t *P, uint16_t row)
 {
 	// forward substitution with pivoting
 	for (uint16_t i = 0; i < row; ++i) {
@@ -79,10 +32,42 @@ static uint8_t solve(float A[], float x[], float b[], uint8_t P[], float LU[], u
 		if (fabsf(LU[row * P[i] + i]) > FLT_EPSILON)
 			x[i] = x[i] / LU[row * P[i] + i];
 		else
-			return 0;
+			return -ENOTSUP;
 	}
 
-	return 1; // No problems
+	return 0;
+}
+
+int inv(float *Ai_out, const float *const A, uint16_t row)
+{
+	// Create temporary matrix and status variable
+	float tmpvec[row];
+	float Ai[row * row];
+
+	memset(tmpvec, 0, row * sizeof(float));
+
+	// Check if the determinant is 0
+	float LU[row * row];
+	uint8_t P[row];
+
+	if (lup(A, LU, P, row) != 0) {
+		return -ENOTSUP;
+	}
+
+	// Create the inverse
+	for (uint16_t i = 0; i < row; i++) {
+		tmpvec[i] = 1.0f;
+		if (solve(LU, &Ai[row * i], tmpvec, P, row) != 0)
+			return -ENOTSUP; // We divided with zero
+		tmpvec[i] = 0.0f;
+	}
+
+	// Transpose result
+	tran(Ai, Ai, row, row);
+
+	memcpy(Ai_out, Ai, sizeof(float) * row * row);
+
+	return 0;
 }
 
 /*

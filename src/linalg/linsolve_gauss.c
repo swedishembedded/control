@@ -10,38 +10,6 @@
 #include <string.h>
 #include <control/linalg.h>
 
-static void triu(float *A, float *b, uint16_t row);
-static void tikhonov(float *A, float *b, float *ATA, float *ATb, uint16_t row_a, uint16_t column_a,
-		     float alpha);
-
-/*
- * This is gaussian elemination
- * If alpha = 0:
- * A[m*n]
- * b[m]
- * x[n]
- * m == n
- * If alpha > 0: (Tikhonov regularization is used)
- * A[m*n]
- * b[m]
- * x[n]
- * m =/= n
- */
-void linsolve_gauss(float *A, float *x, float *b, uint16_t row, uint16_t column, float alpha)
-{
-	if (alpha <= 0 && row == column) {
-		triu(A, b, row);
-		linsolve_upper_triangular(A, x, b, column);
-	} else {
-		float ATA[column * column];
-		float ATb[column];
-
-		tikhonov(A, b, ATA, ATb, row, column, alpha);
-		triu(ATA, ATb, column);
-		linsolve_upper_triangular(ATA, x, ATb, column);
-	}
-}
-
 /*
  * Prepare A and b into upper triangular with triu.
  * A [m*n] A need to be square
@@ -94,22 +62,22 @@ static void triu(float *A, float *b, uint16_t row)
  * m = row
  * n = column
  */
-static void tikhonov(float *A, float *b, float *ATA, float *ATb, uint16_t row_a, uint16_t column_a,
-		     float alpha)
+static void tikhonov(const float *const A, const float *const b, float *ATA, float *ATb,
+		     uint16_t row_a, uint16_t column_a, float alpha)
 {
 	// AT - Transpose A
 	float AT[column_a * row_a]; // Same dimension as A, just swapped rows and column
 
 	memcpy(AT, A, column_a * row_a * sizeof(float)); // Copy A -> AT
-	tran(AT, row_a, column_a); // Now turn the values of AT to transpose
+	tran(AT, AT, row_a, column_a); // Now turn the values of AT to transpose
 
 	// ATb = AT*b
 	memset(ATb, 0, row_a * sizeof(float));
-	mul(AT, b, ATb, column_a, row_a, 1);
+	mul(ATb, AT, b, column_a, row_a, row_a, 1);
 
 	// ATA = AT*A
 	memset(ATA, 0, column_a * column_a * sizeof(float));
-	mul(AT, A, ATA, column_a, row_a, column_a);
+	mul(ATA, AT, A, column_a, row_a, row_a, column_a);
 
 	// ATA = ATA + alpha*I. Don't need identity matrix here because we only add on diagonal
 	for (uint16_t i = 0; i < column_a; i++)
@@ -138,3 +106,24 @@ static void tikhonov(float *A, float *b, float *ATA, float *ATb, uint16_t row_a,
 
 	>>
  */
+
+void linsolve_gauss(const float *const A_in, float *x, const float *const b_in, uint16_t row,
+		    uint16_t column, float alpha)
+{
+	if (alpha <= 0 && row == column) {
+		float A[row * row];
+		float b[column];
+
+		memcpy(A, A_in, sizeof(A));
+		memcpy(b, b_in, sizeof(b));
+		triu(A, b, row);
+		linsolve_upper_triangular(A, x, b, column);
+	} else {
+		float ATA[column * column];
+		float ATb[column];
+
+		tikhonov(A_in, b_in, ATA, ATb, row, column, alpha);
+		triu(ATA, ATb, column);
+		linsolve_upper_triangular(ATA, x, ATb, column);
+	}
+}

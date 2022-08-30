@@ -1,0 +1,25 @@
+${insert("det")}
+
+The determinant of a square matrix is a scalar value that is a function of the
+entries of the matrix.
+
+[stem]
+++++
+|A| = \begin{bmatrix} a & b \\ c & d \end{bmatrix} = ad-bc
+++++
+
+[stem]
+++++
+|A| = \begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}
+= a\,\begin{bmatrix} e & f \\ h & i \end{bmatrix} -
+	b\,\begin{bmatrix} d & f \\ g & i \end{bmatrix} +
+	c\,\begin{bmatrix} d & e \\ g & h \end{bmatrix} \\
+= aei + bfg + cdh - ceg - bdi - afh.
+++++
+
+The determinant is non-zero if and only if the matrix is invertible and the
+linear map represented by the matdix is an isomorphism - i.e. an invertible
+function.
+
+The determinant of a product of matrices is the product of their determinants
+(the preceding property is a corollary of this one).

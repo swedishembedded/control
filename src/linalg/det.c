@@ -15,15 +15,17 @@
  * n == m
  * Return: Determinant value, or 0 for singular matrix
  */
-float det(float A[], uint16_t row)
+float det(const float *const A, uint16_t row)
 {
 	float determinant = 1.0;
 	float LU[row * row];
 	uint8_t P[row];
-	uint8_t status = lup(A, LU, P, row);
 
-	if (status == 0)
-		return 0; // matrix is singular
+	if (lup(A, LU, P, row) != 0) {
+		// LU decomposition failed
+		// matrix is singular
+		return 0;
+	}
 
 	for (uint16_t i = 0; i < row; ++i)
 		determinant *= LU[row * P[i] + i];

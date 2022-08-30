@@ -17,17 +17,18 @@
  * b [m]
  * m == n
  */
-void linsolve_upper_triangular(float A[], float x[], float b[], uint16_t column)
+void linsolve_upper_triangular(const float *const A, float x[], const float *const b,
+			       uint16_t column)
 {
 	// Time to solve x from Ax = b.
 	memset(x, 0, column * sizeof(float));
 	float sum;
 
 	// Column
-	for (uint16_t i = column - 1; i >= 0; i--) {
+	for (int16_t i = column - 1; i >= 0; i--) {
 		sum = 0.0; // This is our sum
 		// Row
-		for (uint16_t j = i; j < column; j++) {
+		for (int16_t j = i; j < column; j++) {
 			sum += A[i * column + j] * x[j];
 		}
 		x[i] = (b[i] - sum) / A[i * column + i];

@@ -208,7 +208,7 @@ static void create_state_estimation_error_covariance_matrix(float Sd[], float Wc
 			AT[i * M + j] = sqrtf(Re[i * L + j - K]);
 
 	/* We need to do transpose on A according to the SR-UKF paper */
-	tran(AT, L, M);
+	tran(AT, AT, L, M);
 
 	/* Solve [Q, R] = qr(A') but we only need R matrix */
 	qr(AT, Q, R, M, L, true);
@@ -253,11 +253,11 @@ static void create_state_cross_covariance_matrix(float Pwd[], float Wc[], float 
 		diagonal_W[i * N + i] = Wc[i];
 
 	/* Do Pwd = W*diagonal_W*D' */
-	tran(D, L, N);
+	tran(D, D, L, N);
 	float diagonal_WD[N * L];
 
-	mul(diagonal_W, D, diagonal_WD, N, N, L);
-	mul(W, diagonal_WD, Pwd, L, N, L);
+	mul(diagonal_WD, diagonal_W, D, N, N, N, L);
+	mul(Pwd, W, diagonal_WD, L, N, N, L);
 }
 
 // Sw, what, dhat, d, Sd, Pwd, L
@@ -270,20 +270,20 @@ static void update_state_covarariance_matrix_and_state_estimation_vector(float S
 	float SdT[L * L];
 
 	memcpy(SdT, Sd, L * L * sizeof(float));
-	tran(SdT, L, L);
+	tran(SdT, SdT, L, L);
 
 	/* Multiply Sd and Sd' to Sd'Sd */
 	float SdTSd[L * L];
 
-	mul(SdT, Sd, SdTSd, L, L, L);
+	mul(SdTSd, SdT, Sd, L, L, L, L);
 
 	/* Take inverse of Sd'Sd - Inverse is using LUP-decomposition */
-	inv(SdTSd, L);
+	inv(SdTSd, SdTSd, L);
 
 	/* Compute kalman gain K from Sd'Sd * K = Pwd => K = Pwd * inv(SdTSd) */
 	float K[L * L];
 
-	mul(Pwd, SdTSd, K, L, L, L);
+	mul(K, Pwd, SdTSd, L, L, L, L);
 
 	/* Compute what = what + K*(d - dhat) */
 	float ddhat[L];
@@ -291,14 +291,14 @@ static void update_state_covarariance_matrix_and_state_estimation_vector(float S
 
 	for (uint8_t i = 0; i < L; i++)
 		ddhat[i] = d[i] - dhat[i];
-	mul(K, ddhat, Kd, L, L, 1);
+	mul(Kd, K, ddhat, L, L, L, 1);
 	for (uint8_t i = 0; i < L; i++)
 		what[i] = what[i] + Kd[i];
 
 	/* Compute U = K*Sd */
 	float U[L * L];
 
-	mul(K, Sd, U, L, L, L);
+	mul(U, K, Sd, L, L, L, L);
 
 	/* Compute Sw = cholupdate(Sw, Uk, -1) because Uk is a vector and U is a matrix */
 	float Uk[L];

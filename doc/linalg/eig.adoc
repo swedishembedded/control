@@ -1,0 +1,17 @@
+${insert("eig")}
+
+Eigenvalues are a special set of scalars associated with a linear system of
+equations that are sometimes also referred to as characteristic roots,
+characteristic values, proper values, or latent roots.
+
+Equation stem:[(A − λI)v = 0] has a nonzero solution 'v' *if and only if* the
+determinant of the matrix 'A − λI' is zero. Therefore, the eigenvalues of 'A'
+are values of 'λ' that satisfy the equation:
+
+[stem]
+++++
+A-\lambda I| = 0
+++++
+
+This equation is called the characteristic equation or the 'secular equation'
+of A. This is useful when analyzing stability of a controlled system.

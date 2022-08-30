@@ -10,80 +10,46 @@
 #include <math.h>
 #include <float.h>
 #include <string.h>
+#include <errno.h>
 #include <control/linalg.h>
 
 // Private functions
-static void Householders_Reduction_to_Bidiagonal_Form(float *A, uint16_t nrows, uint16_t ncols,
-						      float *U, float *V, float *diagonal,
-						      float *superdiagonal);
+static void Householders_Reduction_to_Bidiagonal_Form(const float *const A, uint16_t nrows,
+						      uint16_t ncols, float *U, float *V,
+						      float *diagonal, float *superdiagonal);
 static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, float *U, float *V,
 					     float *diagonal, float *superdiagonal);
 static void Sort_by_Decreasing_Singular_Values(uint16_t nrows, uint16_t ncols,
 					       float *singular_value, float *U, float *V);
 
-/*
- *
- *     This is Singular Value Decomposition A = USV^T.
- *     This routine decomposes an m x n matrix A, with m >= n, into a product
- *     of the three matrices U, D, and V', i.e. A = UDV', where U is an m x n
- *     matrix whose columns are orthogonal, D is a n x n diagonal matrix, and
- *     V is an n x n orthogonal matrix.  V' denotes the transpose of V.  If
- *     m < n, then the procedure may be used for the matrix A'.  The singular
- *     values of A are the diagonal elements of the diagonal matrix D and
- *     correspond to the positive square roots of the eigenvalues of the
- *     matrix A'A.
- *
- *     This procedure programmed here is based on the method of Golub and
- *     Reinsch as given on pages 134 - 151 of the "Handbook for Automatic
- *     Computation vol II - Linear Algebra" edited by Wilkinson and Reinsch
- *     and published by Springer-Verlag, 1971.
- *
- *     The Golub and Reinsch's method for decomposing the matrix A into the
- *     product U, D, and V' is performed in three stages:
- *       Stage 1:  Decompose A into the product of three matrices U1, B, V1'
- *         A = U1 B V1' where B is a bidiagonal matrix, and U1, and V1 are a
- *         product of Householder transformations.
- *       Stage 2:  Use Given' transformations to reduce the bidiagonal matrix
- *         B into the product of the three matrices U2, D, V2'.  The singular
- *         value decomposition is then UDV'where U = U2 U1 and V' = V1' V2'.
- *       Stage 3:  Sort the matrix D in decreasing order of the singular
- *         values and interchange the columns of both U and V to reflect any
- *         change in the order of the singular values.
- * A [m*n]
- * U [m*n]
- * S [n]
- * V [n*n]
- * m = row
- * n = column
- * If m < n, then this procedure is for A'
- * Return 1 = Success.
- * Return 0 = Fail.
- */
-uint8_t svd_golub_reinsch(float A[], uint16_t row, uint16_t column, float U[], float S[], float V[])
+int svd_golub_reinsch(const float *const A, uint16_t row, uint16_t column, float *U, float *S,
+		      float *V)
 {
 	float dummy_array[column];
 
 	Householders_Reduction_to_Bidiagonal_Form(A, row, column, U, V, S, dummy_array);
 
 	if (Givens_Reduction_to_Diagonal_Form(row, column, U, V, S, dummy_array) < 0)
-		return 0; // Fail
+		return -ENOTSUP;
 
 	Sort_by_Decreasing_Singular_Values(row, column, S, U, V);
 
-	return 1; // Solved
+	return 0;
 }
 
-static void Householders_Reduction_to_Bidiagonal_Form(float *A, uint16_t nrows, uint16_t ncols,
-						      float *U, float *V, float *diagonal,
-						      float *superdiagonal)
+static void Householders_Reduction_to_Bidiagonal_Form(const float *const Ain, uint16_t nrows,
+						      uint16_t ncols, float *U, float *V,
+						      float *diagonal, float *superdiagonal)
 {
 	int i, j, k, ip1;
 	float s, s2, si, scale;
 	float *pu, *pui, *pv, *pvi;
 	float half_norm_squared;
 
-	// Copy A to U
-	memcpy(U, A, sizeof(float) * nrows * ncols);
+	float A[nrows * ncols];
+
+	memcpy(A, Ain, sizeof(A));
+	memcpy(U, Ain, sizeof(float) * nrows * ncols);
 
 	diagonal[0] = 0.0;
 	s = 0.0;

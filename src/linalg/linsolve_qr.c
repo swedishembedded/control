@@ -9,13 +9,8 @@
 
 #include <control/linalg.h>
 
-/*
- * Solve Ax=b with QR decomposition
- * A[m*n]
- * b[m]
- * x[n]
- */
-void linsolve_qr(float A[], float x[], float b[], uint16_t row, uint16_t column)
+void linsolve_qr(const float *const A, float *x, const float *const b, uint16_t row,
+		 uint16_t column)
 {
 	// QR-decomposition
 	float Q[row * row];
@@ -23,7 +18,7 @@ void linsolve_qr(float A[], float x[], float b[], uint16_t row, uint16_t column)
 	float QTb[row];
 
 	qr(A, Q, R, row, column, false);
-	tran(Q, row, row); // Do transpose Q -> Q^T
-	mul(Q, b, QTb, row, row, 1); // Q^Tb = Q^T*b
+	tran(Q, Q, row, row); // Do transpose Q -> Q^T
+	mul(QTb, Q, b, row, row, row, 1); // Q^Tb = Q^T*b
 	linsolve_upper_triangular(R, x, QTb, column);
 }

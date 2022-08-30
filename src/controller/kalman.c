@@ -12,9 +12,10 @@
 
 /*
  * This is linear Kalman filter state update
- * x = Ax - KCx + Bu + Ky
+ * x = Ax + Bu + Ky - KCx
  */
-void kalman(float A[], float B[], float C[], float K[], float u[], float x[], float y[],
+void kalman(float *xout, const float *const A, const float *x, const float *const B,
+	    const float *const u, const float *const K, const float *const y, const float *const C,
 	    uint8_t ADIM, uint8_t YDIM, uint8_t RDIM)
 {
 	float Ax[ADIM * 1];
@@ -23,15 +24,15 @@ void kalman(float A[], float B[], float C[], float K[], float u[], float x[], fl
 	float KCx[ADIM * 1];
 	float Ky[ADIM * 1];
 
-	mul(A, x, Ax, ADIM, ADIM, 1);
-	mul(B, u, Bu, ADIM, RDIM, 1);
-	mul(C, x, Cx, YDIM, ADIM, 1);
-	mul(K, Cx, KCx, ADIM, YDIM, 1);
-	mul(K, y, Ky, ADIM, YDIM, 1);
+	mul(Ax, A, x, ADIM, ADIM, ADIM, 1);
+	mul(Bu, B, u, ADIM, RDIM, RDIM, 1);
+	mul(Cx, C, x, YDIM, ADIM, ADIM, 1);
+	mul(KCx, K, Cx, ADIM, YDIM, YDIM, 1);
+	mul(Ky, K, y, ADIM, YDIM, YDIM, 1);
 
 	// Estimate new discrete state
 	// x = Ax + Bu + K * (y - Cx)
 	for (uint8_t i = 0; i < ADIM; i++) {
-		x[i] = Ax[i] + Bu[i] + Ky[i] - KCx[i];
+		xout[i] = Ax[i] + Bu[i] + Ky[i] - KCx[i];
 	}
 }

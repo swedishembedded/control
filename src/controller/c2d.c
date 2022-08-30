@@ -31,7 +31,7 @@ void c2d(float A[], float B[], uint8_t ADIM, uint8_t RDIM, float sampleTime)
 			M[i * (ADIM + RDIM) + j + ADIM] = B[i * RDIM + j] * sampleTime;
 		}
 	}
-	expm(M, ADIM + RDIM);
+	expm(M, M, ADIM + RDIM);
 	for (uint8_t i = 0; i < ADIM; i++) {
 		// For A row
 		for (uint8_t j = 0; j < ADIM; j++) {

@@ -1,2 +1,10 @@
+function(define_test FUNC)
+  add_executable(${FUNC} main.cpp)
+  target_include_directories(${FUNC} PRIVATE ${CMAKE_BINARY_DIR}/tests/sym_tf)
+  target_link_libraries(${FUNC} control gtest pthread)
+  add_test(NAME ${FUNC} COMMAND ${FUNC})
+endfunction()
+
 add_subdirectory(motion)
 add_subdirectory(model)
+add_subdirectory(linalg)

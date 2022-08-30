@@ -8,20 +8,12 @@
  */
 
 #include <string.h>
+#include <errno.h>
 #include <math.h>
 #include <float.h>
 #include <control/linalg.h>
 
-/*
- * Do LU-decomposition with partial pivoting
- * A [m*n]
- * LU [m*n]
- * P [n]
- * n == m
- * Returns 1 == Success
- * Returns 0 == Fail
- */
-uint8_t lup(float A[], float LU[], uint8_t P[], uint16_t row)
+int lup(const float *const A, float *LU, uint8_t *P, uint16_t row)
 {
 	// Variables
 	uint16_t ind_max, tmp_int;
@@ -45,7 +37,7 @@ uint8_t lup(float A[], float LU[], uint8_t P[], uint16_t row)
 		P[ind_max] = tmp_int;
 
 		if (fabsf(LU[row * P[i] + i]) < FLT_EPSILON)
-			return 0; // matrix is singular (up to tolerance)
+			return -ENOTSUP; // matrix is singular (up to tolerance)
 
 		for (uint16_t j = i + 1; j < row; ++j) {
 			LU[row * P[j] + i] = LU[row * P[j] + i] / LU[row * P[i] + i];
@@ -56,5 +48,5 @@ uint8_t lup(float A[], float LU[], uint8_t P[], uint16_t row)
 		}
 	}
 
-	return 1; // Solved
+	return 0;
 }
