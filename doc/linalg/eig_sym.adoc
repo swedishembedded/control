@@ -1,0 +1,11 @@
+${insert("eig_sym")}
+
+Performs equivalent of following code in matlab:
+
+[source,matlab]
+--
+[t, d] = eig(A)
+--
+
+The result is a matrix of eigenvectors (t) and a diagonal matrix with
+eigenvalues (d).

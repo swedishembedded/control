@@ -22,7 +22,8 @@ float pid_step(struct pid *self, float e);
 void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8_t ADIM,
 	 uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT,
 	 bool has_integration);
-void kalman(float A[], float B[], float C[], float K[], float u[], float x[], float y[],
+void kalman(float *xout, const float *const A, const float *x, const float *const B,
+	    const float *const u, const float *const K, const float *const y, const float *const C,
 	    uint8_t ADIM, uint8_t YDIM, uint8_t RDIM);
 void lqi(float y[], float u[], float qi, float r[], float L[], float Li[], float x[], float xi[],
 	 uint8_t ADIM, uint8_t YDIM, uint8_t RDIM, uint8_t ANTI_WINDUP);

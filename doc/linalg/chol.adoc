@@ -1,0 +1,21 @@
+${insert("chol")}
+
+This function performs lower triangular cholesky decomposition of a positive
+definite matrix A. The lower triangular decomposition is significantly faster
+for sparse matrices than upper triangular so this function implements only lower
+triangular decomposition.
+
+[stem]
+++++
+A = \begin{bmatrix} 5 & 11 \\ 11 & 25 \end{bmatrix}
+++++
+
+[stem]
+++++
+L = chol(A) = \begin{bmatrix} 2.23607 & 0.0 \\ 4.91935 & 0.89443 \end{bmatrix}
+++++
+
+[stem]
+++++
+A == L * L'
+++++

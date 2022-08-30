@@ -6,7 +6,7 @@
  **/
 #undef __STRICT_ANSI__
 #include <math.h>
-
+#include <string.h>
 #include <control/linalg.h>
 #include <control/model/dc_motor.h>
 
@@ -60,10 +60,10 @@ void model_dc_motor_step(struct model_dc_motor *self)
 	float Cx[1];
 	float Du[1];
 
-	mul(self->A, self->x, Ax, 2, 2, 1);
-	mul(self->B, self->u, Bu, 2, 1, 1);
-	mul(self->C, self->x, Cx, 1, 2, 1);
-	mul(self->D, self->u, Du, 1, 1, 1);
+	mul(Ax, self->A, self->x, 2, 2, 2, 1);
+	mul(Bu, self->B, self->u, 2, 1, 1, 1);
+	mul(Cx, self->C, self->x, 1, 2, 2, 1);
+	mul(Du, self->D, self->u, 1, 1, 1, 1);
 	self->x[0] = Ax[0] + Bu[0];
 	self->x[1] = Ax[1] + Bu[1];
 	self->y[0] = Cx[0] + Du[0];

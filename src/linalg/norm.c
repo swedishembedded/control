@@ -8,16 +8,15 @@
  */
 
 #include <math.h>
+#include <string.h>
 #include <control/linalg.h>
 
-/*
- * Find the norm of A
- * A[m*n]
- * l = 1 = L1-norm
- * l = 2 = L2-norm
- */
-float norm(float A[], uint16_t row, uint16_t column, uint8_t l)
+float norm(const float *const Ain, uint16_t row, uint16_t column, uint8_t l)
 {
+	float A[row * column];
+
+	memcpy(A, Ain, sizeof(A));
+
 	if (l == 1) {
 		// Vector
 		if (row == 1) {

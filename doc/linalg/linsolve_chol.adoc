@@ -1,0 +1,10 @@
+${insert("linsolve_chol")}
+
+This operation finds a solution 'x' in equation:
+
+[stem]
+++++
+Ax = b
+++++
+
+It uses cholesky decomposition to achieve this.

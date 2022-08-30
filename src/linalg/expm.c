@@ -15,18 +15,17 @@
  * A[m*n]
  * m == n
  */
-void expm(float A[], uint16_t row)
+void expm(const float *const A, float *exp, uint16_t row)
 {
 	// Create zero matrix
 	float E[row * row];
-
-	memset(E, 0, sizeof(E));
-	// Create identity matrices
 	float F[row * row];
 	float T[row * row];
 
+	memset(E, 0, sizeof(E));
 	memset(F, 0, sizeof(F));
 	memset(T, 0, sizeof(T));
+
 	for (uint16_t i = 0; i < row; i++) {
 		F[i * row + i] = 1;
 		T[i * row + i] = 1;
@@ -40,7 +39,7 @@ void expm(float A[], uint16_t row)
 			E[i] = E[i] + F[i];
 		}
 		// F = A*F/k (we are borrowing T)
-		mul(A, F, T, row, row, row);
+		mul(T, A, F, row, row, row, row);
 		for (uint16_t i = 0; i < row * row; i++) {
 			F[i] = T[i] / k;
 		}
@@ -50,7 +49,7 @@ void expm(float A[], uint16_t row)
 		}
 		k++;
 	}
-	memcpy(A, E, sizeof(E));
+	memcpy(exp, E, sizeof(E));
 }
 
 /*

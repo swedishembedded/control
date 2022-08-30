@@ -8,6 +8,7 @@
  */
 
 #include <string.h>
+#include <errno.h>
 #include <control/linalg.h>
 
 /*
@@ -16,12 +17,13 @@
  * H [m*n]
  * shift >= 0 // Set this to 0 if you want a normal hankel matrix
  */
-void hankel(float V[], float H[], uint16_t row_v, uint16_t column_v, uint16_t row_h,
-	    uint16_t column_h, uint16_t shift)
+int hankel(const float *const V, float *H, uint16_t row_v, uint16_t column_v, uint16_t row_h,
+	   uint16_t column_h, uint16_t shift)
 {
 	// row_h need to be divided with row_v
 	if (row_h % row_v != 0)
-		return; // Cannot create hankel matrix
+		// Cannot create hankel matrix
+		return -EINVAL;
 
 	memset(H, 0, row_h * column_h * sizeof(float));
 
@@ -44,4 +46,6 @@ void hankel(float V[], float H[], uint16_t row_v, uint16_t column_v, uint16_t ro
 			       delta * sizeof(float));
 		}
 	}
+
+	return 0;
 }

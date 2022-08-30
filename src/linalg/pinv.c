@@ -9,14 +9,7 @@
 
 #include <control/linalg.h>
 
-/*
- * Pseudo inverse by using Singular Value Decomposition
- * A [m*n]
- * m >= n
- * A+ = V*inv(S)*U'
- * This return matrix A [n*m] - Reversed size
- */
-void pinv(float A[], uint16_t row, uint16_t column)
+void pinv(float *Ai, const float *const A, uint16_t row, uint16_t column)
 {
 	// Use Golub and Reinch if row != column
 	float U[row * column];
@@ -33,7 +26,7 @@ void pinv(float A[], uint16_t row, uint16_t column)
 		S[i] = 1.0 / S[i]; // Create inverse diagonal matrix
 
 	// Transpose U'
-	tran(U, row, column);
+	tran(U, U, row, column);
 
 	// U = S*U'
 	for (uint16_t i = 0; i < row; i++)
@@ -41,5 +34,5 @@ void pinv(float A[], uint16_t row, uint16_t column)
 			U[row * j + i] = S[j] * U[row * j + i];
 
 	// Do pinv now: A = V*U
-	mul(V, U, A, column, column, row);
+	mul(Ai, V, U, column, column, column, row);
 }

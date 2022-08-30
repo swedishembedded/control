@@ -1,0 +1,10 @@
+${insert("linsolve_gauss")}
+
+This operation finds a solution 'x' in equation:
+
+[stem]
+++++
+Ax = b
+++++
+
+It uses gaussian elimination to achieve this.

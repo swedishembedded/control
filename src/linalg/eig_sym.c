@@ -18,23 +18,16 @@ static float pythag_float(float a, float b);
 #define square(a) ((a) * (a))
 #define abs_sign(a, b) ((b) >= 0.0 ? fabsf(a) : -fabsf(a)) // Special case for tqli function
 
-/*
- * Compute eigenvalues and eigenvectors from a symmetrical square matrix A
- * Notice that a square symmetrical matrix can never have complex eigenvalues and eigenvalues!
- * A [m*n]
- * n == m
- * A^T = A
- * d [m] // Eigenvalues
- * A will become eigenvectors!
- */
-void eig_sym(float *A, uint16_t row, float d[])
+void eig_sym(const float *const AA, float *ev, float *d, uint16_t row)
 {
 	float e[row];
 
+	memcpy(ev, AA, sizeof(float) * row * row);
+
 	memset(e, 0, row * sizeof(float));
 	memset(d, 0, row * sizeof(float));
-	tridiag(A, row, d, e);
-	tqli(d, e, row, A);
+	tridiag(ev, row, d, e);
+	tqli(d, e, row, ev);
 }
 
 // Create a tridiagonal matrix

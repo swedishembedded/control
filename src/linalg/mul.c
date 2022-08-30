@@ -7,19 +7,19 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include <errno.h>
 #include <control/linalg.h>
 
-/*
- * C = A*B
- * A [row_a*column_a]
- * B [column_a*column_b]
- * C [row_a*column_b]
- */
-void mul(float A[], float B[], float C[], uint16_t row_a, uint16_t column_a, uint16_t column_b)
+int mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
+	uint16_t row_b, uint16_t column_b)
 {
 	// Data matrix
-	float *data_a;
-	float *data_b;
+	const float *data_a;
+	const float *data_b;
+
+	if (column_a != row_b) {
+		return -EINVAL;
+	}
 
 	for (uint16_t i = 0; i < row_a; i++) {
 		// Then we go through every column of b
@@ -34,9 +34,10 @@ void mul(float A[], float B[], float C[], uint16_t row_a, uint16_t column_a, uin
 				data_a++;
 				data_b += column_b;
 			}
-			C++; // ;)
+			C++;
 		}
 	}
+	return 0;
 }
 
 /*

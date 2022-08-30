@@ -19,7 +19,7 @@
  * L [m*n]
  * n == m
  */
-void chol(float A[], float L[], uint16_t row)
+void chol(const float *const A, float *L, uint16_t row)
 {
 	float s;
 	uint16_t i, j, k;

@@ -69,19 +69,19 @@ void rls(uint8_t NP, uint8_t NZ, uint8_t NZE, float theta[], float u, float y, u
 		 * To [-y(t-1), -y(t-1), -y(t-2), -y(t-3), -y(t-4)...]
 		 */
 		// Shift 1 step for y
-		for (uint8_t i = NP - 2; i >= 0; i--) {
+		for (int i = NP - 2; i >= 0; i--) {
 			phi[i + 1] = phi[i];
 			if (i == 0)
 				break;
 		}
 		// Shift 1 step for u
-		for (uint8_t i = NZ - 2; i >= 0; i--) {
+		for (int i = NZ - 2; i >= 0; i--) {
 			phi[i + NP + 1] = phi[i + NP];
 			if (i == 0)
 				break;
 		}
 		// Shift 1 step for e
-		for (uint8_t i = NZE - 2; i >= 0; i--) {
+		for (int i = NZE - 2; i >= 0; i--) {
 			phi[i + NP + NZ + 1] = phi[i + NP + NZ];
 			if (i == 0)
 				break;
@@ -118,12 +118,13 @@ static void recursive(uint8_t NP, uint8_t NZ, uint8_t NZE, float y, float phi[],
 	// Step 1: phiTP = phi'*P - > 1 row matrix
 	float phiTP[NP + NZ + NZE];
 
-	mul(phi, P, phiTP, 1, NP + NZ + NZE, NP + NZ + NZE); // We pretend that phi is transpose
+	// We pretend that phi is transpose
+	mul(phiTP, phi, P, 1, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE);
 
 	// Step 2: Pphi = P*phi -> Vector
 	float Pphi[NP + NZ + NZE];
 
-	mul(P, phi, Pphi, NP + NZ + NZE, NP + NZ + NZE, 1);
+	mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
 
 	// Step 3: l + phiTP*phi = l + phi'*P*phi
 	sum = 0;
@@ -134,14 +135,14 @@ static void recursive(uint8_t NP, uint8_t NZ, uint8_t NZE, float y, float phi[],
 	// Step 4: Pphi*phiTP = P*phi*phi'*P -> Matrix
 	float PphiphiTP[(NP + NZ + NZE) * (NP + NZ + NZE)];
 
-	mul(Pphi, phiTP, PphiphiTP, NP + NZ + NZE, 1, NP + NZ + NZE);
+	mul(PphiphiTP, Pphi, phiTP, NP + NZ + NZE, 1, 1, NP + NZ + NZE);
 
 	// Step 5: Compute P = 1/l*(P - 1/sum*PphiphiTP);
 	for (int i = 0; i < (NP + NZ + NZE) * (NP + NZ + NZE); i++)
 		P[i] = 1 / forgetting * (P[i] - 1 / sum * PphiphiTP[i]);
 
 	// Compute theta = theta + P*phi*error;
-	mul(P, phi, Pphi, NP + NZ + NZE, NP + NZ + NZE, 1);
+	mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
 
 	// Compute theta = theta + Pphi*error
 	for (int i = 0; i < NP + NZ + NZE; i++) {
