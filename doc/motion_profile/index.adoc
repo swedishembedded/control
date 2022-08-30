@@ -144,7 +144,7 @@ difference between starting and ending velocity:
 
 [stem]
 ++++
-    0 = acc * t_1 - dec * t_3 - vend + vstart
+0 = acc * t_1 - dec * t_3 - vend + vstart
 ++++
 
 The third equation states that our final velocity after t1 must equal to vmax
@@ -153,7 +153,7 @@ we have to solve a simpler system with only two equations).
 
 [stem]
 ++++
-    0 = acc * t_1 - vmax + vstart
+0 = acc * t_1 - vmax + vstart
 ++++
 
 To find the solution we use octave symbolics package and just define our symbols

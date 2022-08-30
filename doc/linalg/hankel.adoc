@@ -1,0 +1,36 @@
+${insert("hankel")}
+
+Compute hankel matrix from input matrix.
+
+A hankel matrix consists of input vector copied and shifted down the result
+matrix:
+
+[stem]
+++++
+\begin{bmatrix} a & b & c & d & e \\ b & c & d & e & f \\ c & d & e & f & g \\ d
+& e & f & g & h \\ e & f & g & h & i \end{bmatrix}
+++++
+
+A hankel matrix can also be half matrix:
+
+[stem]
+++++
+Input = \begin{bmatrix} a & b & c & d \end{bmatrix}
+++++
+
+Resulting hankel matrix:
+
+[stem]
+++++
+\begin{bmatrix} a & b \\ b & c \end{bmatrix}
+++++
+
+If the input vector has two or more rows then the resulting hankel matrix
+consists of blocks of that many rows:
+
+[stem]
+++++
+\begin{bmatrix} a & b & c & d & e \\ b & c & d & e & f \\ b & c & d & e & 0 \\ c
+& d & e & f & 0 \\ c & d & e & 0 & 0 \\ d & e & f & 0 & 0 \\ d & e & 0 & 0 & 0
+\\ e & f & 0 & 0 & 0 \\ e & 0 & 0 & 0 & 0 \\ f & 0 & 0 & 0 & 0 \end{bmatrix}
+++++

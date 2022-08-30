@@ -1,0 +1,11 @@
+${insert("dlyap")}
+
+The discrete time lyapunov equation is defined as:
+
+[stem]
+++++
+APA^{H} - P + Q = 0
+++++
+
+Where stem:[Q] is a hermitian matrix (a matrix that is equal to its conjugate
+transpose) and stem:[A^H] is the conjugate transpose of stem:[A].

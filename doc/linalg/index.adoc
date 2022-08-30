@@ -1,0 +1,58 @@
+= Linear algebra building blocks
+
+This library is designed to be self sufficient and usable across a wide range of
+microcontrollers and other embedded and resource constrained systems. For this
+reason, a simple, fast and fairly complete basic function library was needed.
+
+Linear algebra module provides this functionality. Making it possible to build
+more complex (and still simple) operations out of these basic building blocks.
+
+${include("add.adoc", leveloffset="+0")}
+
+${include("balance.adoc", leveloffset="+0")}
+
+${include("chol.adoc", leveloffset="+0")}
+
+${include("cholupdate.adoc", leveloffset="+0")}
+
+${include("det.adoc", leveloffset="+0")}
+
+${include("dlyap.adoc", leveloffset="+0")}
+
+${include("eig.adoc", leveloffset="+0")}
+
+${include("expm.adoc", leveloffset="+0")}
+
+${include("hankel.adoc", leveloffset="+0")}
+
+${include("inv.adoc", leveloffset="+0")}
+
+${include("linsolve_chol.adoc", leveloffset="+0")}
+
+${include("linsolve_gauss.adoc", leveloffset="+0")}
+
+${include("linsolve_lower_triangular.adoc", leveloffset="+0")}
+
+${include("linsolve_lup.adoc", leveloffset="+0")}
+
+${include("linsolve_upper_triangular.adoc", leveloffset="+0")}
+
+${include("lup.adoc", leveloffset="+0")}
+
+${include("mul.adoc", leveloffset="+0")}
+
+${include("nonlinsolve.adoc", leveloffset="+0")}
+
+${include("norm.adoc", leveloffset="+0")}
+
+${include("pinv.adoc", leveloffset="+0")}
+
+${include("qr.adoc", leveloffset="+0")}
+
+${include("sum.adoc", leveloffset="+0")}
+
+${include("svd_golub_reinsch.adoc", leveloffset="+0")}
+
+${include("svd_jacobi_one_sided.adoc", leveloffset="+0")}
+
+${include("tran.adoc", leveloffset="+0")}

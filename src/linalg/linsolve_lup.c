@@ -7,25 +7,18 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include <errno.h>
+
 #include <control/linalg.h>
 
-/*
- * This solves Ax=b with LUP-decomposition
- * A [m*n]
- * x [n]
- * b [m]
- * n == m
- * Returns 1 == Success
- * Returns 0 == Fail
- */
-uint8_t linsolve_lup(float A[], float x[], float b[], uint16_t row)
+int linsolve_lup(const float *const A, float *x, const float *const b, uint16_t row)
 {
 	float LU[row * row];
 	uint8_t P[row];
-	uint8_t status = lup(A, LU, P, row);
 
-	if (status == 0)
-		return 0;
+	if (lup(A, LU, P, row) != 0) {
+		return -ENOTSUP;
+	}
 
 	// forward substitution with pivoting
 	for (uint16_t i = 0; i < row; ++i) {
@@ -36,8 +29,8 @@ uint8_t linsolve_lup(float A[], float x[], float b[], uint16_t row)
 	}
 
 	// backward substitution with pivoting
-	for (uint16_t i = row - 1; i >= 0; --i) {
-		for (uint16_t j = i + 1; j < row; ++j)
+	for (int16_t i = row - 1; i >= 0; --i) {
+		for (int16_t j = i + 1; j < row; ++j)
 			x[i] = x[i] - LU[row * P[i] + j] * x[j];
 
 		x[i] = x[i] / LU[row * P[i] + i];
@@ -47,5 +40,5 @@ uint8_t linsolve_lup(float A[], float x[], float b[], uint16_t row)
 			break;
 	}
 
-	return status;
+	return 0;
 }

@@ -9,19 +9,12 @@
 
 #include <math.h>
 #include <string.h>
+#include <errno.h>
 
 #include <control/linalg.h>
 
-/*
- * Householder QR-decomposition
- * A [m*n]
- * Q [m*m]
- * R [m*n]
- *
- * Returns 1 == Success
- * Returns 0 == Fail
- */
-uint8_t qr(float *A, float *Q, float *R, uint16_t row_a, uint16_t column_a, bool only_compute_R)
+int qr(const float *const A, float *Q, float *R, uint16_t row_a, uint16_t column_a,
+       bool only_compute_R)
 {
 	// Declare
 	uint16_t row_a_row_a = row_a * row_a;
@@ -61,8 +54,9 @@ uint8_t qr(float *A, float *Q, float *R, uint16_t row_a, uint16_t column_a, bool
 		for (uint16_t i = k + 1; i < row_a; i++)
 			W[i] = R[i * column_a + k] / r;
 
+		// TODO: investigate why no transpose
 		// WW = W*W'
-		mul(W, W, WW, row_a, 1, row_a);
+		mul(WW, W, W, row_a, 1, 1, row_a);
 
 		// Fill Hi matrix
 		for (uint16_t i = 0; i < row_a_row_a; i++)
@@ -74,23 +68,23 @@ uint8_t qr(float *A, float *Q, float *R, uint16_t row_a, uint16_t column_a, bool
 
 		// HiH = Hi * H -> HiH = H
 		if (!only_compute_R) {
-			mul(Hi, H, HiH, row_a, row_a, row_a);
+			mul(HiH, Hi, H, row_a, row_a, row_a, row_a);
 			memcpy(H, HiH, row_a_row_a * sizeof(float));
 		}
 
 		// HiR = Hi * R -> HiR = R
-		mul(Hi, R, HiR, row_a, row_a, column_a);
+		mul(HiR, Hi, R, row_a, row_a, row_a, column_a);
 		memcpy(R, HiR, row_a * column_a * sizeof(float));
 	}
 
-	// Do inverse on H and give it to Q
-	uint8_t status = 1;
-
 	if (!only_compute_R) {
-		status = inv(H, row_a);
+		// If H can not be inverted then we can not compute Q
+		if (inv(H, H, row_a) != 0)
+			return -ENOTSUP;
 		memcpy(Q, H, row_a_row_a * sizeof(float));
 	}
-	return status;
+
+	return 0;
 }
 
 /*

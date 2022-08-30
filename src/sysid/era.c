@@ -66,7 +66,7 @@ void era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B
 			V[j * column_h + i] = V[j * column_h + i] * sqrtf(1 / S[i]);
 
 	// U = S^(-1/2)*U^T
-	tran(U, row_h, column_h);
+	tran(U, U, row_h, column_h);
 	for (uint16_t i = 0; i < row_h; i++)
 		for (uint16_t j = 0; j < column_h; j++)
 			U[j * row_h + i] = sqrtf(1 / S[j]) * U[j * row_h + i];
@@ -74,10 +74,10 @@ void era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B
 	// Create A matrix: T = H*V
 	float Temp[row_h * column_h]; // Temporary
 
-	mul(H, V, Temp, row_h, column_h, column_h);
+	mul(Temp, H, V, row_h, column_h, column_h, column_h);
 
 	// Now, multiply V = U(column_h, row_h)*Temp(row_h, column_h). U is transpose!
-	mul(U, Temp, V, column_h, row_h, column_h);
+	mul(V, U, Temp, column_h, row_h, row_h, column_h);
 
 	// Get the elements of V -> A
 	cut(V, column_h, column_h, A, 0, row_a - 1, 0, row_a - 1);

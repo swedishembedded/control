@@ -10,14 +10,11 @@
 #include <string.h>
 #include <control/linalg.h>
 
-/*
- * Turn A into transponse A^T
- */
-void tran(float A[], uint16_t row, uint16_t column)
+void tran(float *At, const float *const A, uint16_t row, uint16_t column)
 {
 	float B[row * column];
 	float *transpose;
-	float *ptr_A = A;
+	const float *ptr_A = A;
 
 	for (uint16_t i = 0; i < row; i++) {
 		transpose = &B[i];
@@ -29,23 +26,5 @@ void tran(float A[], uint16_t row, uint16_t column)
 	}
 
 	// Copy!
-	memcpy(A, B, row * column * sizeof(float));
+	memcpy(At, B, row * column * sizeof(float));
 }
-
-/*
- * GNU Octave code:
- * >> A = [4 23 5; 2 45 5]
-	A =
-
-		4   23    5
-		2   45    5
-
-	>> A'
-	ans =
-
-		4    2
-	   23   45
-		5    5
-
-	>>
- */

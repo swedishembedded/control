@@ -50,7 +50,7 @@ void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8
 	// PHI_vec = PHI*x
 	float PHI_vec[HORIZON * YDIM];
 
-	mul(PHI, x, PHI_vec, HORIZON * YDIM, ADIM, 1);
+	mul(PHI_vec, PHI, x, HORIZON * YDIM, ADIM, ADIM, 1);
 
 	// R_PHI_vec = R_vec - PHI_vec
 	float R_PHI_vec[HORIZON * YDIM];
@@ -63,30 +63,31 @@ void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8
 	float GAMMAT[HORIZON * YDIM * HORIZON * RDIM];
 
 	memcpy(GAMMAT, GAMMA, HORIZON * YDIM * HORIZON * RDIM * sizeof(float)); // GAMMA -> GAMMAT
-	tran(GAMMAT, HORIZON * YDIM, HORIZON * RDIM);
+	tran(GAMMAT, GAMMAT, HORIZON * YDIM, HORIZON * RDIM);
 
 	// b = GAMMAT*R_PHI_vec
 	float b[HORIZON * YDIM];
 
 	//memset(b, 0, HORIZON * YDIM * sizeof(float));
-	mul(GAMMAT, R_PHI_vec, b, HORIZON * RDIM, HORIZON * YDIM, 1);
+	mul(b, GAMMAT, R_PHI_vec, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM, 1);
 
 	// GAMMATGAMMA = GAMMAT*GAMMA = A
 	float GAMMATGAMMA[HORIZON * RDIM * HORIZON * RDIM];
 
 	//memset(GAMMATGAMMA, 0, HORIZON * RDIM*HORIZON * RDIM * sizeof(float));
-	mul(GAMMAT, GAMMA, GAMMATGAMMA, HORIZON * RDIM, HORIZON * YDIM, HORIZON * RDIM);
+	mul(GAMMATGAMMA, GAMMAT, GAMMA, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM,
+	    HORIZON * RDIM);
 
 	// Copy A and call it AT
 	float AT[HORIZON * RDIM * HORIZON * RDIM];
 
 	memcpy(AT, GAMMATGAMMA, HORIZON * RDIM * HORIZON * RDIM * sizeof(float)); // A -> AT
-	tran(AT, HORIZON * RDIM, HORIZON * RDIM);
+	tran(AT, AT, HORIZON * RDIM, HORIZON * RDIM);
 
 	// Now create c = AT*R_PHI_vec
 	float c[HORIZON * YDIM];
 
-	mul(AT, R_PHI_vec, c, HORIZON * RDIM, HORIZON * RDIM, 1);
+	mul(c, AT, R_PHI_vec, HORIZON * RDIM, HORIZON * RDIM, HORIZON * RDIM, 1);
 
 	// Do linear programming now
 	linprog(c, GAMMATGAMMA, b, R_vec, HORIZON * YDIM, HORIZON * RDIM, 0, ITERATION_LIMIT);
@@ -111,6 +112,7 @@ void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8
 static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, uint8_t RDIM,
 		 uint8_t HORIZON)
 {
+	(void)RDIM;
 	// This matrix will A^(i+1) all the time
 	float A_copy[ADIM * ADIM];
 
@@ -121,7 +123,7 @@ static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, 
 	//memset(T, 0, YDIM * ADIM * sizeof(float));
 
 	// Regular T = C*A^(1+i)
-	mul(C, A, T, YDIM, ADIM, ADIM);
+	mul(T, C, A, YDIM, ADIM, ADIM, ADIM);
 
 	// Insert temporary T into PHI
 	memcpy(PHI, T, YDIM * ADIM * sizeof(float));
@@ -130,8 +132,8 @@ static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, 
 	float A_pow[ADIM * ADIM];
 
 	for (uint8_t i = 1; i < HORIZON; i++) {
-		mul(A, A_copy, A_pow, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
-		mul(C, A_pow, T, YDIM, ADIM, ADIM); // T = C*A^(1+i)
+		mul(A_pow, A, A_copy, ADIM, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
+		mul(T, C, A_pow, YDIM, ADIM, ADIM, ADIM); // T = C*A^(1+i)
 		memcpy(PHI + i * YDIM * ADIM, T,
 		       YDIM * ADIM * sizeof(float)); // Insert temporary T into PHI
 		memcpy(A_copy, A_pow, ADIM * ADIM * sizeof(float)); // A_copy <- A_pow
@@ -145,19 +147,20 @@ static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, 
 static void cab(float GAMMA[], float PHI[], float A[], float B[], float C[], uint8_t ADIM,
 		uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON)
 {
+	(void)A;
 	// First create the initial C*A^0*B == C*I*B == C*B
 	float CB[YDIM * RDIM];
 
-	mul(C, B, CB, YDIM, ADIM, RDIM);
+	mul(CB, C, B, YDIM, ADIM, ADIM, RDIM);
 
 	// Take the transpose of CB so it will have dimension RDIM*YDIM instead
-	tran(CB, YDIM, RDIM);
+	tran(CB, CB, YDIM, RDIM);
 
 	// Create the CAB matrix from PHI*B
 	float PHIB[HORIZON * YDIM * RDIM];
 
-	mul(PHI, B, PHIB, HORIZON * YDIM, ADIM, RDIM); // CAB = PHI*B
-	tran(PHIB, HORIZON * YDIM, RDIM);
+	mul(PHIB, PHI, B, HORIZON * YDIM, ADIM, ADIM, RDIM); // CAB = PHI*B
+	tran(PHIB, PHIB, HORIZON * YDIM, RDIM);
 
 	/*
 	 * We insert GAMMA = [CB PHI;
@@ -176,5 +179,5 @@ static void cab(float GAMMA[], float PHI[], float A[], float B[], float C[], uin
 	}
 
 	// Transpose of gamma
-	tran(GAMMA, HORIZON * RDIM, HORIZON * YDIM);
+	tran(GAMMA, GAMMA, HORIZON * RDIM, HORIZON * YDIM);
 }

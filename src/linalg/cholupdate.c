@@ -8,6 +8,7 @@
  */
 
 #include <math.h>
+#include <string.h>
 #include <control/linalg.h>
 
 /*
@@ -17,11 +18,14 @@
  * x [m]
  * n == m
  */
-void cholupdate(float L[], float x[], uint16_t row, bool rank_one_update)
+void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_update)
 {
 	float alpha = 0.0, beta = 1.0, beta2 = 0.0, gamma = 0.0, delta = 0.0;
+	float x[row];
 
-	tran(L, row, row);
+	memcpy(x, xx, sizeof(x));
+
+	tran(L, L, row, row);
 
 	for (uint8_t i = 0; i < row; i++) {
 		alpha = x[i] / L[row * i + i];
@@ -62,5 +66,5 @@ void cholupdate(float L[], float x[], uint16_t row, bool rank_one_update)
 		}
 	}
 
-	tran(L, row, row);
+	tran(L, L, row, row);
 }

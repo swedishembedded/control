@@ -22,8 +22,14 @@ static void prepare(float *A, uint16_t row);
  * wi [m] // Imaginary eigenvalues
  * n == m
  */
-void eig(float A[], float wr[], float wi[], uint16_t row)
+void eig(const float *const AA, float *wr, float *wi, uint16_t row)
 {
+	float A[row * row];
+
+	// create a copy since we are modifying it
+	// we don't want to modify the original matrix!
+	memcpy(A, AA, sizeof(A));
+
 	// Find the eigenvalues
 	balance(A, row);
 	prepare(A, row);

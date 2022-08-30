@@ -21,6 +21,7 @@
 void cut(float A[], uint16_t row, uint16_t column, float B[], uint16_t start_row, uint16_t stop_row,
 	 uint16_t start_column, uint16_t stop_column)
 {
+	(void)row;
 	int in_columns = column;
 	float *data = A + start_row * in_columns + start_column;
 

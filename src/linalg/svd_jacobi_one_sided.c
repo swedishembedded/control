@@ -11,23 +11,15 @@
 #include <math.h>
 #include <control/linalg.h>
 
-/*
- * This is Singular Value Decomposition A = USV^T
- * This uses Jacobi rotation method.
- * http://www.netlib.org/lapack/lawnspdf/lawn15.pdf
- * Use this SVD method if you have a square matrix A.
- * A [m*n] // This will be set to U
- * U [m*m]
- * S [n]
- * V [n*n]
- * n == m
- */
-void svd_jacobi_one_sided(float A[], uint16_t row, uint8_t max_iterations, float U[], float S[],
-			  float V[])
+void svd_jacobi_one_sided(const float *const Ain, uint16_t row, uint8_t max_iterations, float *U,
+			  float *S, float *V)
 {
 	// i and j are the indices of the point we've chosen to zero out
 	float al, b, c, l, t, cs, sn, tmp, sign;
 	int i, j, p, k;
+	float A[row * row];
+
+	memcpy(A, Ain, sizeof(A));
 
 	// Create the identity matrix
 	memset(U, 0, row * row * sizeof(float));

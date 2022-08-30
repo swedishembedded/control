@@ -1,0 +1,26 @@
+${insert("cholupdate")}
+
+Perform a Rank1 cholesky update or downdate on a lower triangular cholesky
+decomposition matrix L.
+
+Assume that:
+
+[stem]
+++++
+L = chol(A)
+++++
+
+When we want to compute:
+
+[stem]
+++++
+R = chol(A + x * x')
+++++
+
+Instead of computing the cholesky decomposition again, we can use cholupdate to
+get the new result without the cholesky decomposition:
+
+[stem]
+++++
+R = cholupdate(L, x)
+++++

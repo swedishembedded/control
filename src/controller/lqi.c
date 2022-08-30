@@ -30,10 +30,10 @@ void lqi(float y[], float u[], float qi, float r[], float L[], float Li[], float
 	float Lx[RDIM * 1];
 	float Lixi[RDIM];
 
-	mul(L, x, Lx, RDIM, ADIM, 1);
+	mul(Lx, L, x, RDIM, ADIM, ADIM, 1);
 
 	integral(ANTI_WINDUP, xi, r, y, RDIM);
-	mul(Li, xi, Lixi, RDIM, YDIM, 1);
+	mul(Lixi, Li, xi, RDIM, YDIM, YDIM, 1);
 
 	// Now combine these two laws: u = Li/(1-qi)*r - (L*x - Li*xi)
 	for (uint8_t i = 0; i < RDIM; i++) {

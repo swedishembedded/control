@@ -1,0 +1,8 @@
+${insert("expm")}
+
+Compute matrix exponential stem:[e^A].
+
+[source,matlab]
+--
+E = expm(A)
+--
