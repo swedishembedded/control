@@ -9,9 +9,6 @@
 
 #include <control/misc.h>
 
-/*
- * Sign function
- */
 float sign(float number)
 {
 	float s;

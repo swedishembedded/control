@@ -8,6 +8,7 @@
  */
 
 #pragma once
+
 #include <stdint.h>
 
 void linprog(float c[], float A[], float b[], float x[], uint8_t row_a, uint8_t column_a,

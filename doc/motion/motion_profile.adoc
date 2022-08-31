@@ -1,0 +1,328 @@
+// SPDX-License-Identifier: MIT
+// Copyright 2022 Martin Schröder <info@swedishembedded.com>
+// Consulting: https://swedishembedded.com/consulting
+// Simulation: https://swedishembedded.com/simulation
+// Training: https://swedishembedded.com/tag/training
+
+In control systems it is often necessary to generate a motion profile for a
+controller. This is typically done by an "executive" controller that generates
+setpoint for a lower level controller.
+
+A motion profile is essentially a trapezoidal shape that defines position,
+velocity and acceleration setpoints at any given time during the execution of a
+move. A motion profile must start at a particular point in time and then for the
+duration of the move it must resolve correct position, velocity and acceleration
+setpoints until the move is completed.
+
+== Initializing a motion profile
+
+A motion profile is initialized using ${link("motion_profile_init")} function.
+This function takes three parameters which define the trapezoidal shape of the
+profile.
+
+== Planning a move
+
+A move can be planned using the ${link("motion_profile_plan_move")} function. It
+takes as parameter the starting position and velocity and ending position and
+velocity.
+
+
+== Getting the setpoints
+
+The setpoints for a particular time since start of the profile can be obtained
+using the ${link("motion_profile_get_pva")} method which takes as a parameter
+the absolute time offset since profile was started and calculates three
+setpoints for the control action. This method returns profile status.
+
+
+== Getting traversal time
+
+Occasionally it may be necessary to get the total traversal time for a
+particular profile. After you have planned a move, you can get the traversal
+time using ${link("motion_profile_get_traversal_time")} function.
+
+
+== Method description
+
+This section describes equations that one can use to calculate position and
+velocity setpoint value given a time along a preplanned path which has been
+planned using desired distance traveled, velocity at start of travel, velocity
+at end of travel, maximum velocity, desired acceleration and desired
+deceleration. The solution is presented mathematically and full octave source
+code is provided below.
+
+=== Theory Of Profile Generation
+
+Input variables:
+
+- *acc* – maximum velocity rate of change when approaching maximum velocity
+- *dec* – desired deceleration rate
+- *vmax* – maximum velocity moving towards the target
+- *vstart* – velocity when move starts
+- *vend* – velocity when move ends
+- *dstart* – position at start of the move
+- *dend* – position we would like to travel to
+
+The problem is not as simple as may seem at first because what we need to do is
+find a solution to the following set of equations:
+
+[stem]
+++++
+0 = (acc * t_1^2) / 2 + (dec * t_2^2) / 2 - dist + t_1 * vstart + t_2 * vmax + t_3 * vend
+++++
+
+[stem]
+++++
+0 = acc * t_1 - dec * t_3 - vend + vstart
+++++
+
+[stem]
+++++
+0 = acc * t_1 - vmax + vstart
+++++
+
+Not only that, but we also want our solution to work in both positive and
+negative directions and we want to be able to execute all kinds of nontrivial
+moves. Here are some examples of the types of moves we want to be able to do
+(blue graph is position, green one is velocity):
+
+image::img/motion_profile_1.jpg[]
+
+*Illustration 1*: Start at 10, move to -2. At start of move your velocity is
+-2, at end of the move it must be 1
+
+image::img/motion_profile_2.jpg[]
+
+*Illustration 2*: Start at 10, move to -2, your starting velocity is now 2
+(positive direction) and your target velocity is 1. Velocity rate limit is
+set at 4.
+
+Note that on the second picture above the target position is reached twice.
+This is entirely correct because we want to satisfy both the velocity
+constraint of moving 1m/s forward and the position constraint which means we
+have to move backwards and as quickly as possible. We also can not move at a
+rate of more than 4m/s in that direction. So we have to first decelerate, then
+as quickly as possible reach the maximum velocity moving towards the target,
+but then as the target is reached the first time we also want now to reverse
+the direction of movement so we go ahead and do this.  Thus we first satisfy
+the positioning constraint as quickly as possible, but our velocity constraint
+is not satisfied yet. Then we cross the target position the second time and
+this time both our velocity constraint and our position constraint is
+satisfied. The algorithm presented here handles these special cases
+automatically.
+
+Moreover, the solution has to support two distinct cases: one where maximum
+velocity can be reached (which results in a trapezoidal profile) and one where
+maximum velocity can not be reached (which results in a triangular profile).
+
+image::img/motion_profile_3.jpg[]
+
+*Illustration 3*: Move from -2 to 4. Maximum velocity of 4m/s can not be reached.
+
+So how do we go about solving this?
+
+=== The solution
+
+We will use GNU octave to find the solution to the above system of equations.
+The solution is not trivial to find manually because the system is nonlinear
+(it includes squared time terms).
+
+The first equation states that our total distances must equal the distance that
+we want to travel.
+
+[stem]
+++++
+    0 = (acc * t_1^2) / 2 + (dec * t_2^2) / 2 - dist + t_1 * vstart + t_2 * vmax + t_3 * vend
+++++
+
+(we will actually find two solutions – one for triangular profile and second one for trapezoidal one)
+This is a sum of various terms that compose the total distance traveled:
+
+image::img/motion_profile_4.jpg[]
+
+*Illustration 4*: Equations
+
+The second equation states that sum of all of our velocities from start to end must equal the
+difference between starting and ending velocity:
+
+[stem]
+++++
+0 = acc * t_1 - dec * t_3 - vend + vstart
+++++
+
+The third equation states that our final velocity after t1 must equal to vmax
+(for the triangular case the solution to this extended system does not exist so
+we have to solve a simpler system with only two equations).
+
+[stem]
+++++
+0 = acc * t_1 - vmax + vstart
+++++
+
+To find the solution we use octave symbolics package and just define our symbols
+and then let octave find the expressions for t1, t2 and t3 for f1 = 0, f2 = 0
+and f3 = 0:
+
+[source,octave]
+--
+	syms acc dec t1 t2 t3 vmax dist vstart vend
+	f1 = (vstart * t1 + (acc * t1^2)/2) + (vend * t3 + (dec * t3^2) / 2) ­ dist
+	f2 = vstart + acc * t1 ­ dec * t3 ­ vend
+	s = solve(f1 == 0, f2 == 0, [t1, t3])
+
+	syms acc dec t1 t2 t3 vmax dist vstart vend
+	f1 = (vstart * t1 + (acc * t1^2)/2) + vmax * t2 + (vend * t3 + (dec * t3^2) / 2) ­ dist
+	f2 = vstart + acc * t1 ­ dec * t3 ­ vend
+	f3 = vstart + acc * t1 ­ vmax
+	solve(f1 == 0, f2 == 0, f3 == 0, [t1, t2, t3])
+--
+
+The first system actually has two solutions. We are only interested in one that
+creates positive time because negative time does not make sense to us.
+
+Solution for triangular profile:
+
+We can now implement our algorithm by first checking if trapezoidal profile is
+possible by finding the velocity we reach after t1. If this value is higher than
+the maximum then we have to calculate t1, t2 and t3 for trapezoidal profile. If
+not then t2 = 0 and we just go ahead with the values we have calculated.
+
+[source,octave]
+--
+	t1 = (-vend * (acc + dec) + sqrt((acc + dec) * (2 * acc * dec * dist + acc * vend * vend + dec * vstart * vstart)) + (acc + dec) * (vend - vstart)) / (acc *
+	(acc + dec))
+	t2 = 0
+	t3 = (-vend * (acc + dec) + sqrt((acc + dec) * (2 * acc * dec * dist + acc * vend * vend + dec * vstart * vstart))) / (dec * (acc + dec))
+	v2 = vstart + acc * t1
+	if abs(v2) > abs(vmax)
+		t1 = (vmax - vstart) / acc
+		t2 = (2 * acc * dec * dist + acc * vend * vend - acc * vmax * vmax - dec * vmax * vmax + dec * vstart * vstart) / (2 * acc * dec * vmax)
+		t3 = -(vend - vmax)/dec
+	end
+--
+
+We can now go ahead and calculate our velocities at each stage and also our
+distances so that we can then produce a solution that for any given time t will
+give us our position and velocity.
+
+[source,octave]
+--
+	v1 = vstart
+	v2 = vstart + acc * t1
+	v3 = vend
+	d1 = v1 * t1 + (acc * t1^2)/2
+	d2 = v2 * t2
+	d3 = v3 * t3 + (dec * t3^2)/2
+	dtotal = d1 + d2 + d3
+--
+
+The solution for any time t now becomes:
+
+[source,octave]
+--
+	if t < t1
+		v = v1 + acc * t;
+		d = v1 * t + (acc * t^2) / 2;
+	elseif t >= t1 && t < (t1 + t2)
+		v = v2;
+		d = d1 + (t ­ t1) * v2;
+	elseif t >= (t1 + t2) && t < ttotal
+		v = v2 ­ dec * (t ­ t1 ­ t2);
+		d = dtotal ­ v3 * (ttotal ­ t) ­ (dec * (ttotal ­ t)^2) / 2;
+	else
+		v = v3;
+		d = d1 + d2 +d3 + v3 * (t ­ ttotal);
+	end
+	d = dstart + d;
+--
+
+That’s it.
+
+=== Full Octave Source Code
+
+[source,octave]
+--
+	pkg load symbolic
+
+	syms acc dec t1 t2 t3 vmax dist vstart vend
+	f1 = (vstart * t1 + (acc * t1^2)/2) + (vend * t3 + (dec * t3^2) / 2) ­ dist
+	f2 = vstart + acc * t1 ­ dec * t3 ­ vend
+	s = solve(f1 == 0, f2 == 0, [t1, t3])
+	syms acc dec t1 t2 t3 vmax dist vstart vend
+	f1 = (vstart * t1 + (acc * t1^2)/2) + vmax * t2 + (vend * t3 + (dec * t3^2) / 2) ­ dist
+	f2 = vstart + acc * t1 ­ dec * t3 ­ vend
+	f3 = vstart + acc * t1 ­ vmax
+	solve(f1 == 0, f2 == 0, f3 == 0, [t1, t2, t3])
+
+	dstart = ­2
+	dend = 6
+	dist = dend ­ dstart
+	if dend >= dstart
+		sig = 1
+	else
+		sig = ­1
+	end
+	acc = sig * 2
+	dec = sig * 2
+	vmax = sig * 4
+	vstart = 1
+	vend = 2
+	t1 = (­vend * (acc + dec) + sqrt((acc + dec) * (2 * acc * dec * dist + acc * vend * vend + dec *
+	vstart * vstart)) + (acc + dec) * (vend ­ vstart)) / (acc * (acc + dec))
+	t2 = 0
+	t3 = (­vend * (acc + dec) + sqrt((acc + dec) * (2 * acc * dec * dist + acc * vend * vend + dec *
+	vstart * vstart))) / (dec * (acc + dec))
+	v2 = vstart + acc * t1
+	if abs(v2) > abs(vmax)
+		t1 = (vmax ­ vstart) / acc
+		t2 = (2 * acc * dec * dist + acc * vend * vend ­ acc * vmax * vmax ­ dec * vmax * vmax + dec
+		* vstart * vstart) / (2 * acc * dec * vmax)
+		t3 = ­(vend ­ vmax)/dec
+	end
+	ttotal = t1 + t2 + t3
+	v1 = vstart
+	v2 = vstart + acc * t1
+	v3 = vend
+	d1 = v1 * t1 + (acc * t1^2)/2
+	d2 = v2 * t2
+	d3 = v3 * t3 + (dec * t3^2)/2
+	dtotal = d1 + d2 + d3
+
+	T = [];
+	X = [];
+	v = 0;
+	d = 0;
+	for t = linspace(0, 4, 1000)
+		if t < t1
+			v = v1 + acc * t;
+			d = v1 * t + (acc * t^2) / 2;
+		elseif t >= t1 && t < (t1 + t2)
+			v = v2;
+			d = d1 + (t ­ t1) * v2;
+		elseif t >= (t1 + t2) && t < ttotal
+			v = v2 ­ dec * (t ­ t1 ­ t2);
+			d = dtotal ­ v3 * (ttotal ­ t) ­ (dec * (ttotal ­ t)^2) / 2;
+		else
+			v = v3;
+			d = d1 + d2 +d3 + v3 * (t ­ ttotal);
+		end
+		d = dstart + d;
+		X = [X [d; v]];
+		T = [T t];
+	end
+
+	plot(T, X)
+	input("press any key")
+--
+
+== API Reference
+
+${insert("motion_profile_state_t", leveloffset="+2")}
+
+${insert("motion_profile_init", leveloffset="+2")}
+
+${insert("motion_profile_plan_move", leveloffset="+2")}
+
+${insert("motion_profile_get_pva", leveloffset="+2")}
+
+${insert("motion_profile_get_traversal_time", leveloffset="+2")}

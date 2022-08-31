@@ -14,7 +14,7 @@ build:
     artifacts:
         paths:
             - build/*.deb
-            - build/index.pdf
+            - build/control.pdf
         expire_in: 1 week
         when: always
     rules:

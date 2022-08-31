@@ -15,12 +15,13 @@
  * x[L] Vector with values
  * L = Length of vector x
  */
-float stddev(float x[], uint16_t length)
+float stddev(const float *const x, uint16_t length)
 {
 	float mu = mean(x, length);
 	float sigma = 0;
 
 	for (uint16_t i = 0; i < length; i++)
 		sigma += (x[i] - mu) * (x[i] - mu);
-	return sqrt(sigma / ((float)length));
+
+	return sqrtf(sigma / ((float)length - 1));
 }

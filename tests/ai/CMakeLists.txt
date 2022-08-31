@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2022 Martin Schröder <info@swedishembedded.com>
 
-cmake_minimum_required(VERSION 3.13.1)
-find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(test)
-
-unity_generate_test_runner(src/main.c)
-target_sources(app PRIVATE src/main.c)
+define_test(ai)
+target_sources(ai PRIVATE main.cpp)
+target_sources(ai PRIVATE a_star.cpp)
+target_sources(ai PRIVATE inpolygon.cpp)
