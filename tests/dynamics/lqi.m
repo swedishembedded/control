@@ -1,3 +1,4 @@
+% SPDX-License-Identifier: MIT
 %% Enter your discrete state space model as argument
 
 [dir,_,__] = fileparts(mfilename('fullpath'));

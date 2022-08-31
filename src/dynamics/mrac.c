@@ -7,29 +7,15 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <control/linalg.h>
-#include <control/misc.h>
-#include <control/controller.h>
+#include "control/linalg.h"
+#include "control/misc.h"
+#include "control/dynamics.h"
 
 static void integral(float I[], float gain, float x[], float e[], uint8_t RDIM);
 static void saturate(float I[], float limit, uint8_t RDIM);
 static void modelerror(float e[], float y[], float r[], uint8_t RDIM);
 static void findinput(float u[], float r[], float I1[], float y[], float I2[], uint8_t RDIM);
 
-/*
- * This is Adaptive Model Reference Control - We assume that the reference model is Gm(s) = 1.
- *
- * u = r*integral(-gain*r*e) - y*integral(gain*y*e);
- * Where: u = input to our system
- *      : r = reference
- *      : y = output
- *      : gain = learning factor e.g 0.00001
- *      : e = Model error y-r
- *
- * This can be used with multiple outputs and references
- * HINT: Look up my repository Adaptive-Control and look for Model Reference Adaptive Control with Lyapunov rule
- * HINT: The book Adaptive Control by Karl-Johan Åström describe on page 208 how this works. ISBN: 9780486462783
- */
 void mrac(float limit, float gain, float y[], float u[], float r[], float I1[], float I2[],
 	  uint8_t RDIM)
 {

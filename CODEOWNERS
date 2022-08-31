@@ -11,7 +11,6 @@
 /reports/		@mkschreder
 /scripts/		@mkschreder
 /src/		@mkschreder
-/src/controller/		@mkschreder
 /tests/		@mkschreder
 /zephyr/		@mkschreder
 CODEOWNERS		@mkschreder

@@ -7,13 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <control/linalg.h>
-#include <control/controller.h>
+#include "control/linalg.h"
+#include "control/dynamics.h"
 
-/*
- * This is linear Kalman filter state update
- * x = Ax + Bu + Ky - KCx
- */
 void kalman(float *xout, const float *const A, const float *x, const float *const B,
 	    const float *const u, const float *const K, const float *const y, const float *const C,
 	    uint8_t ADIM, uint8_t YDIM, uint8_t RDIM)

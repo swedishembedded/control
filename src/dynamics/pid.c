@@ -5,12 +5,28 @@
  * Training: https://swedishembedded.com/tag/training
  */
 
-#include <control/controller.h>
 #include <string.h>
+#include <math.h>
+
+#include "control/dynamics.h"
 
 void pid_init(struct pid *self)
 {
 	memset(self, 0, sizeof(*self));
+}
+
+void pid_set_from_imc(struct pid *self, float aggr, float process_gain, float time_constant,
+		      float dead_time)
+{
+	float tc = fmaxf((0.1 * aggr) * time_constant, (0.8 * aggr) * dead_time);
+	float kc =
+		(1.0 / process_gain) * ((time_constant + 0.5 * dead_time) / (tc + 0.5 * dead_time));
+	float ti = time_constant + 0.5 * dead_time;
+	float td = (time_constant * dead_time) / (2.0 * time_constant + dead_time);
+
+	self->Kp = kc;
+	self->Ki = kc / ti;
+	self->Kd = kc * td;
 }
 
 void pid_set_gains(struct pid *self, float Kp, float Ki, float Kd, float d)

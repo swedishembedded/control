@@ -21,6 +21,8 @@ ${include("dlyap.adoc", leveloffset="+0")}
 
 ${include("eig.adoc", leveloffset="+0")}
 
+${include("eig_sym.adoc", leveloffset="+0")}
+
 ${include("expm.adoc", leveloffset="+0")}
 
 ${include("hankel.adoc", leveloffset="+0")}
@@ -34,6 +36,8 @@ ${include("linsolve_gauss.adoc", leveloffset="+0")}
 ${include("linsolve_lower_triangular.adoc", leveloffset="+0")}
 
 ${include("linsolve_lup.adoc", leveloffset="+0")}
+
+${include("linsolve_qr.adoc", leveloffset="+0")}
 
 ${include("linsolve_upper_triangular.adoc", leveloffset="+0")}
 

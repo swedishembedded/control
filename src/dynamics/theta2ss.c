@@ -10,25 +10,6 @@
 #include <string.h>
 #include <control/controller.h>
 
-/*
- * Convert SISO transfer function parameters theta vector into a
- * state space model on Observable Canonical Form.
- * Vector theta can be found from rls function.
- *
- * It's recommended that NP = NZ = NZE = ADIM
- * No integral action:
- * A [ADIM*ADIM]
- * B [ADIM*1]
- * C [1*ADIM]
- * K [ADIM*1]
- * theta [NP+NZ+NZE]
- *
- * Width integral action:
- * A [(ADIM+1)*(ADIM+1)]
- * B [(ADIM+1)*1]
- * C [1*(ADIM+1)]
- * K [(ADIM+1)*1]
- */
 void theta2ss(float A[], float B[], float C[], float theta[], float K[], uint8_t ADIM, uint8_t NP,
 	      uint8_t NZ, uint8_t NZE, bool integral_action)
 {
