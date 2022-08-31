@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: MIT
+// Copyright 2022 Martin Schröder <info@swedishembedded.com>
+// Consulting: https://swedishembedded.com/consulting
+// Simulation: https://swedishembedded.com/simulation
+// Training: https://swedishembedded.com/tag/training
+
+= Path Finding
+
+${include("a_star.adoc", leveloffset="+0")}
+
+${include("inpolygon.adoc", leveloffset="+0")}

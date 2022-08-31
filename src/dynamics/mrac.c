@@ -12,7 +12,6 @@
 #include "control/dynamics.h"
 
 static void integral(float I[], float gain, float x[], float e[], uint8_t RDIM);
-static void saturate(float I[], float limit, uint8_t RDIM);
 static void modelerror(float e[], float y[], float r[], uint8_t RDIM);
 static void findinput(float u[], float r[], float I1[], float y[], float I2[], uint8_t RDIM);
 
@@ -29,8 +28,8 @@ void mrac(float limit, float gain, float y[], float u[], float r[], float I1[], 
 	integral(I2, gain, y, e, RDIM); // I2 = I2 + gain*y*e
 
 	// Saturate
-	saturate(I1, limit, RDIM);
-	saturate(I2, limit, RDIM);
+	constrain(I1, I1, RDIM, -limit, limit);
+	constrain(I2, I2, RDIM, -limit, limit);
 
 	// Find input signal
 	findinput(u, r, I1, y, I2, RDIM);
@@ -40,12 +39,6 @@ static void integral(float I[], float gain, float x[], float e[], uint8_t RDIM)
 {
 	for (uint8_t i = 0; i < RDIM; i++)
 		I[i] += gain * x[i] * e[i];
-}
-
-static void saturate(float I[], float limit, uint8_t RDIM)
-{
-	for (uint8_t i = 0; i < RDIM; i++)
-		I[i] = saturation(I[i], -limit, limit);
 }
 
 static void modelerror(float e[], float y[], float r[], uint8_t RDIM)

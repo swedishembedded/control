@@ -34,7 +34,7 @@ void dlyap(const float *const A, float *P, const float *const Q, uint16_t row)
 			memcpy(B, A, row * row * sizeof(float)); // B = A*A(k, l);
 			for (uint16_t i = 0; i < row * row; i++)
 				B[i] *= A[row * k + l];
-			insert(B, M, row, row, row * row, row * k, row * l);
+			insert(M, B, row, row, row * row, row * k, row * l);
 		}
 	}
 

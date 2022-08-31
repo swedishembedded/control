@@ -18,13 +18,15 @@ All files have spdx license
 	All *.cpp files
 	All *.yaml files
 	All *.robot files
+	All *.adoc files
 
 *** Keywords ***
 
 All ${wildcard} files
 	@{files} =  Git List Files ${wildcard}
 	FOR  ${FILE}  IN  @{FILES}
-		File ${FILE} has spdx identifier
+		${length}=    Get Length    ${FILE}
+		Run Keyword If    ${length}   File ${FILE} has spdx identifier
 	END
 
 Git List Files ${wildcard}

@@ -42,3 +42,4 @@ jobs:
           name: package
           path: |
             build/*.deb
+            build/control.pdf

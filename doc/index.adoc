@@ -1,8 +1,32 @@
-= Swedish Embedded Control Systems Toolbox: swedishembedded.com/sdk
+// SPDX-License-Identifier: MIT
+// Copyright 2022 Martin Schröder <info@swedishembedded.com>
+// Consulting: https://swedishembedded.com/consulting
+// Simulation: https://swedishembedded.com/simulation
+// Training: https://swedishembedded.com/tag/training
+
+= Swedish Embedded Control Systems Toolbox: swedishembedded.com
 :stem: latexmath
 :math: latexmath
 
-== Method call convention
+This is a control systems design library written in pure C that provides you
+with advanced algorithms for control, state estimation and model identification
+specifically designed for use on resource constrained embedded systems.
+
+- Official repository: https://github.com/swedishembedded/control
+- Platform SDK: https://github.com/swedishembedded/sdk
+- Consulting: https://swedishembedded.com/go
+
+It library is fully compatible with Zephyr RTOS so you can simply add it as a
+module to your west.yml file and start using it.
+
+It is focused on practical numerical methods that work best in realtime embedded
+environment without any complex dependencies.
+
+It uses no dynamic memory allocation. All operations are done on C arrays. The
+functions provided by this library are generic implementations that can be used
+to implement controllers that use specific array sizes.
+
+== API Convention
 
 All methods that are part of this library must adhere to following rules:
 
@@ -19,6 +43,18 @@ Following these rules makes the code both easier to maintain and use.
 
 ${include("linalg/index.adoc", leveloffset="+1")}
 
+${include("filter/index.adoc", leveloffset="+1")}
+
+${include("dynamics/index.adoc", leveloffset="+1")}
+
+${include("sysid/index.adoc", leveloffset="+1")}
+
+${include("misc/index.adoc", leveloffset="+1")}
+
 ${include("model/index.adoc", leveloffset="+1")}
 
-${include("motion_profile/index.adoc", leveloffset="+1")}
+${include("motion/index.adoc", leveloffset="+1")}
+
+${include("optimization/index.adoc", leveloffset="+1")}
+
+${include("ai/index.adoc", leveloffset="+1")}

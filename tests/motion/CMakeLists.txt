@@ -3,6 +3,6 @@
 # Consulting: https://swedishembedded.com/go
 # Training: https://swedishembedded.com/tag/training
 
-add_executable(MotionProfileTest src/MotionProfileTest.cpp)
-target_link_libraries(MotionProfileTest control gtest pthread)
-add_test(NAME MotionProfileTest COMMAND MotionProfileTest)
+define_test(motion)
+target_sources(motion PRIVATE main.cpp)
+target_sources(motion PRIVATE motion_profile.cpp)
