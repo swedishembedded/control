@@ -1,0 +1,4 @@
+${insert("c2d")}
+
+This is continuous to discrete transformation. It uses zero order hold (matrix
+exponential) method.

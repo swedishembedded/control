@@ -8,15 +8,10 @@
  */
 
 #include <math.h>
-#include <control/linalg.h>
-#include <control/controller.h>
+#include "control/linalg.h"
+#include "control/dynamics.h"
 
-/*
- * Check the stability of the matrix A by checking the eigenvalues
- * Return true if A is stable.
- * Return false is A is unstable
- */
-bool stability(float A[], uint8_t ADIM)
+bool is_stable(const float *const A, uint8_t ADIM)
 {
 	float wr[ADIM]; // Real eigenvalues
 	float wi[ADIM]; // Imaginary eigenvalues

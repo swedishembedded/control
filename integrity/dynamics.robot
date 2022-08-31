@@ -5,21 +5,15 @@
 
 *** Settings ***
 Library  OperatingSystem
-
 Library  ${CURDIR}/DocChecker.py
+Resource  ${CURDIR}/module.robot
 
 *** Variables ***
 ${ROOT_DIR}  ${CURDIR}/../
 
 *** Test Cases ***
 
-Linear algebra functions have been documented
-	@{FILES} =  List Files In Directory  ${ROOT_DIR}/src/linalg  *.c
-	FOR  ${FILE}  IN   @{FILES}
-		${PATH}  ${NAME}  Split Path  ${FILE}
-		${SECTION}  ${EXT}  Split Extension  ${NAME}
-		File Should Exist  ${ROOT_DIR}/doc/linalg/${SECTION}.adoc
-		File Should Exist  ${ROOT_DIR}/tests/linalg/${SECTION}.cpp
-	END
+Module structure is correct
+	Module structure check dynamics
 
 *** Keywords ***

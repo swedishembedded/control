@@ -1,0 +1,10 @@
+${insert("kalman")}
+
+This is a static gain kalman filter algorithm. It is essentially a system
+propagation step with kalman gain applied to difference between observed state
+and predicted state.
+
+[stem]
+++++
+\hat{x} = Ax + Bu + Ky - KCx
+++++

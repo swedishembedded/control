@@ -1,0 +1,12 @@
+${insert("pid")}
+
+This is a pid controller with optional derivative filter integrated into the
+calculation. The derivative filter pole (parameter d) is a value of the discrete
+(z-domain) pole of the low pass filter that filters the derivative signal.
+
+The transfer function of this controller in discrete domain is:
+
+[stem]
+++++
+C = Kp + Kd * \frac{(1 - d)*(z - 1)}{z-d} + \frac{Ki}{z-1}
+++++

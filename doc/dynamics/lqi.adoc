@@ -1,0 +1,20 @@
+${insert("lqi")}
+
+This is a linear quadratic regulator with integral state. In your controller you
+would typically estimate error state instead of plant state so that you can
+drive the error output to zero.
+
+This means that you should compute the "measured" error as follows:
+
+[stem]
+++++
+e = -(r - y)
+++++
+
+The reason it is negative is because we are working with error state here.
+Suppose your plant is at zero (real state). You want to set the reference to 25.
+Your error at this point between measurement and reference is +25. But for the
+sake of control system design we should always set the reference to 0 because
+that's what our mathematical algorithms try to do - drive error to zero. So we
+simply assume that our plant is at -25 instead of 0 and so our error becomes
+-25. Hence the minus in the error calculation.
