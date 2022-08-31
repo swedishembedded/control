@@ -8,19 +8,15 @@
  */
 
 #include <string.h>
-#include <control/controller.h>
-#include <control/optimization.h>
-#include <control/linalg.h>
+#include "control/dynamics.h"
+#include "control/optimization.h"
+#include "control/linalg.h"
 
 static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, uint8_t RDIM,
 		 uint8_t HORIZON);
 static void cab(float GAMMA[], float PHI[], float A[], float B[], float C[], uint8_t ADIM,
 		uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON);
 
-/*
- * Model predictive control
- * Hint: Look up lmpc.m in Matavecontrol
- */
 void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8_t ADIM,
 	 uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT, bool has_integration)
 {

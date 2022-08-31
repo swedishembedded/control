@@ -89,7 +89,6 @@ void tran(float *At, const float *const A, uint16_t row, uint16_t column);
  * \param B Input matrix [column_a*column_b]
  * \param row_a Number of rows in A
  * \param column_a Number of columns in A
- * \param row_b Number of rows in B
  * \param column_b Number of columns in B (and rows in C)
  **/
 int mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,

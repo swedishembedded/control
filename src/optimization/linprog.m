@@ -1,3 +1,4 @@
+% SPDX-License-Identifier: MIT
 %{
 	>> A = [1 2; 1 -4]
 	A =
@@ -25,7 +26,7 @@
 %}
 
 % This simplex method has been written as it was C code
-function [x] = linprog2(c, A, b, max_or_min, iteration_limit)
+function [x] = linprog(c, A, b, max_or_min, iteration_limit)
 	row_a = size(A, 1);
 	column_a = size(A, 2);
 

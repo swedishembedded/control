@@ -8,13 +8,9 @@
  */
 
 #include <string.h>
-#include <control/linalg.h>
-#include <control/controller.h>
+#include "control/linalg.h"
+#include "control/dynamics.h"
 
-/*
- * Continuous to discrete
- * Turn A and B into discrete form
- */
 void c2d(float A[], float B[], uint8_t ADIM, uint8_t RDIM, float sampleTime)
 {
 	float M[(ADIM + RDIM) * (ADIM + RDIM)];

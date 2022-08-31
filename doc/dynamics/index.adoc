@@ -1,0 +1,22 @@
+= Discrete Dynamics
+
+This module focuses on functions that manipulate state-space and transfer
+function system dynamics.
+
+System identification is under a separate module that is not included here.
+
+${include("c2d.adoc", leveloffset="+0")}
+
+${include("kalman.adoc", leveloffset="+0")}
+
+${include("lqi.adoc", leveloffset="+0")}
+
+${include("mpc.adoc", leveloffset="+0")}
+
+${include("mrac.adoc", leveloffset="+0")}
+
+${include("pid.adoc", leveloffset="+0")}
+
+${include("stability.adoc", leveloffset="+0")}
+
+${include("theta2ss.adoc", leveloffset="+0")}

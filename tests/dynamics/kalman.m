@@ -1,3 +1,4 @@
+% SPDX-License-Identifier: MIT
 %% Example made by Daniel Mårtensson - 2019-10-08
 %% To run this example. You need to install Matavecontrol
 
