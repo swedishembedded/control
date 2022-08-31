@@ -9,6 +9,10 @@
 mkdir -p build
 cd build
 cmake ..
-make
+make -j8
+make docs | grep "warning:" && {
+	echo "There were documentation errors"
+	echo "Rerun 'make docs' again and check it"
+}
 cpack
 cd ..

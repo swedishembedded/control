@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT */
-/**
+/*
  * Copyright 2019 Daniel Mårtensson <daniel.martensson100@outlook.com>
  * Copyright 2022 Martin Schröder <info@swedishembedded.com>
  * Consulting: https://swedishembedded.com/consulting
@@ -51,6 +51,9 @@ void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8
  * \param K Kalman gain matrix precomputed by kalman algorithm [ADIM * YDIM]
  * \param y Measurement vector (noisy) [YDIM * 1]
  * \param C State to output transition matrix [YDIM * ADIM]
+ * \param ADIM State matrix dimensions
+ * \param YDIM Output vector dimension
+ * \param RDIM Input vector dimension
  **/
 void kalman(float *xout, const float *const A, const float *x, const float *const B,
 	    const float *const u, const float *const K, const float *const y, const float *const C,
@@ -73,6 +76,10 @@ void kalman(float *xout, const float *const A, const float *x, const float *cons
  * \param Li LQI Integral law [RDIM * ADIM]
  * \param xi Integral vector [YDIM]
  * \param err Error vector [YDIM * 1]
+ * \param ADIM Dimensions of A matrix
+ * \param YDIM Dimensions of y
+ * \param RDIM Dimensions of u
+ * \param ANTI_WINDUP Anti-windup enabled if set to true (code needs review. Don't use)
  **/
 void lqi(float *u, const float *const L, const float *const x, const float *const Li, float *xi,
 	 const float *const err, uint8_t ADIM, uint8_t YDIM, uint8_t RDIM, uint8_t ANTI_WINDUP);
@@ -98,7 +105,7 @@ void lqi(float *u, const float *const L, const float *const x, const float *cons
  * \param I2 Integral2
  * \param RDIM size of reference and output vector
  **/
-void mrac(float limit, float gain, float y[], float u[], float r[], float I1[], float I2[],
+void mrac(float limit, float gain, float *y, float *u, float *r, float *I1, float *I2,
 	  uint8_t RDIM);
 
 /**
@@ -152,5 +159,6 @@ bool is_stable(const float *const A, uint8_t ADIM);
  * \param B System B matrix [ADIM * RDIM]
  * \param ADIM Size of system A matrix (rows and columns)
  * \param RDIM Number of rows in B matrix
+ * \param sampleTime Sampling time
  **/
-void c2d(float A[], float B[], uint8_t ADIM, uint8_t RDIM, float sampleTime);
+void c2d(float *A, float *B, uint8_t ADIM, uint8_t RDIM, float sampleTime);

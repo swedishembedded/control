@@ -14,6 +14,8 @@ ${ROOT_DIR}  ${CURDIR}/../
 
 Module structure check ${module}
 	File Should Exist  ${ROOT_DIR}/include/control/${module}.h
+	File Should Exist  ${ROOT_DIR}/tests/${module}/CMakeLists.txt
+	Check Page Contains Text  ${ROOT_DIR}/tests/CMakeLists.txt  add_subdirectory(${module})
 	@{FILES} =  List Files In Directory  ${ROOT_DIR}/src/${module}  *.c
 	FOR  ${FILE}  IN   @{FILES}
 		${PATH}  ${NAME}  Split Path  ${FILE}
@@ -26,4 +28,6 @@ Module structure check ${module}
 		Check Page Contains Text  ${ROOT_DIR}/tests/${module}/CMakeLists.txt  ${SECTION}.cpp
 		# Check that file is in zephyr build as well
 		Check Page Contains Text  ${ROOT_DIR}/zephyr/CMakeLists.txt  ../src/${module}/${SECTION}.c
+		# Check that main doc index contains module reference
+		Check Page Contains Text  ${ROOT_DIR}/doc/index.adoc  ${module}/index.adoc
 	END

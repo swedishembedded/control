@@ -223,7 +223,7 @@ class CheckPatch(ComplianceTest):
             )
 
         except subprocess.CalledProcessError as ex:
-            output = ex.output.decode("utf-8")
+            output = ex.output.decode("utf-8", errors="ignore")
             self.add_failure(output)
 
 

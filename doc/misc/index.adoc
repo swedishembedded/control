@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: MIT
+// Copyright 2022 Martin Schröder <info@swedishembedded.com>
+// Consulting: https://swedishembedded.com/consulting
+// Simulation: https://swedishembedded.com/simulation
+// Training: https://swedishembedded.com/tag/training
+
+= Misc
+
+${include("cat.adoc", leveloffset="+0")}
+
+${include("cut.adoc", leveloffset="+0")}
+
+${include("insert.adoc", leveloffset="+0")}
+
+${include("mean.adoc", leveloffset="+0")}
+
+${include("print.adoc", leveloffset="+0")}
+
+${include("randn.adoc", leveloffset="+0")}
+
+${include("constrain.adoc", leveloffset="+0")}
+
+${include("sign.adoc", leveloffset="+0")}
+
+${include("stddev.adoc", leveloffset="+0")}
