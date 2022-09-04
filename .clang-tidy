@@ -1,0 +1,54 @@
+---
+Checks:    "bugprone-*,\
+            cert-*,\
+            clang-analyzer-*,\
+            google-*,\
+            llvm-*,\
+            misc-*,\
+            modernize-*,\
+            performance-*,\
+            readability-*,\
+            -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,\
+            -google-readability-braces-around-statements,\
+            -google-readability-todo,\
+            -llvm-header-guard,\
+            -modernize-use-trailing-return-type,\
+            -readability-misleading-indentation"
+WarningsAsErrors:   '*'
+AnalyzeTemporaryDtors: false
+CheckOptions:
+  - key:             performance-move-const-arg.CheckTriviallyCopyableMove
+    value:           0
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassConstantCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.ClassConstantPrefix
+    value:           'k'
+  - key:             readability-identifier-naming.EnumCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.EnumConstantCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.FunctionCase
+    value:           lower_case
+  - key:             readability-identifier-naming.GlobalConstantCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.GlobalConstantPrefix
+    value:           'G_'
+  - key:             readability-identifier-naming.MemberCase
+    value:           lower_case
+  - key:             readability-identifier-naming.NamespaceCase
+    value:           lower_case
+  - key:             readability-identifier-naming.PublicMemberSuffix
+    value:           ''
+  - key:             readability-identifier-naming.PrivateMemberSuffix
+    value:           '_'
+  - key:             readability-identifier-naming.ProtectedMemberSuffix
+    value:           '_'
+  - key:             readability-identifier-naming.MethodCase
+    value:           camelBack
+  - key:             readability-identifier-naming.ParameterCase
+    value:           lower_case
+  - key:             readability-identifier-naming.VariableCase
+    value:           lower_case
+...

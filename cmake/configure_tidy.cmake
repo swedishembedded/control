@@ -1,0 +1,6 @@
+function(configure_tidy TARGET_NAME)
+  if(SECONTROL_CLANG_TIDY)
+    include(clang-tidy)
+    clang_tidy_check(${TARGET_NAME})
+  endif()
+endfunction()

@@ -1,4 +1,6 @@
 .checkpatch.conf		@mkschreder
+.clang-tidy             @mkschreder
+/cmake/                 @mkschreder
 /CMakeLists.txt		@mkschreder
 /LICENSE		@mkschreder
 /README.md		@mkschreder

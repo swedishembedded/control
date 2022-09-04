@@ -8,7 +8,11 @@ cmake_minimum_required(VERSION 3.12.2)
 
 project (control VERSION 0.34.0)
 
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(configure_tidy)
 include(CTest)
+
+option(SECONTROL_CLANG_TIDY "Build with clang-tidy static analysis" OFF)
 
 add_subdirectory(doc)
 add_subdirectory(src)
