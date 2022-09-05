@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-#include "control/controller.h"
+#include "control/dynamics.h"
 #include "control/model/dc_motor.h"
 };
 
