@@ -7,7 +7,8 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <control/linalg.h>
+#include "control/linalg.h"
+
 void linsolve_chol(const float *const A, float *x, const float *const b, uint16_t row)
 {
 	float L[row * row];

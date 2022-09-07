@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <math.h>
 #include "control/ai.h"
 #include "control/misc.h"
+
+#include <math.h>
 
 uint8_t inpolygon(float x, float y, const float *const px, const float *const py, uint8_t p)
 {

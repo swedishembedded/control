@@ -7,7 +7,8 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <control/misc.h>
+#include "control/misc.h"
+
 #include <string.h>
 
 void cut(float *B, const float *const A, uint16_t row, uint16_t column, uint16_t start_row,

@@ -7,19 +7,105 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
 #include "control/dynamics.h"
-#include "control/optimization.h"
 #include "control/linalg.h"
+#include "control/optimization.h"
 
+#include <errno.h>
+#include <string.h>
+
+/*
+ * [C*A^1; C*A^2; C*A^3; ... ; C*A^HORIZON] % Extended observability matrix
+ */
 static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, uint8_t RDIM,
-		 uint8_t HORIZON);
-static void cab(float GAMMA[], float PHI[], float A[], float B[], float C[], uint8_t ADIM,
-		uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON);
-
-void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8_t ADIM,
-	 uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT, bool has_integration)
+		 uint8_t HORIZON)
 {
+	(void)RDIM;
+	// This matrix will A^(i+1) all the time
+	float A_copy[ADIM * ADIM];
+
+	memcpy(A_copy, A, ADIM * ADIM * sizeof(float));
+
+	// Temporary matrix
+	float T[YDIM * ADIM];
+	//memset(T, 0, YDIM * ADIM * sizeof(float));
+
+	// Regular T = C*A^(1+i)
+	mul(T, C, A, YDIM, ADIM, ADIM, ADIM);
+
+	// Insert temporary T into PHI
+	memcpy(PHI, T, YDIM * ADIM * sizeof(float));
+
+	// Do the rest C*A^(i+1) because we have already done i = 0
+	float A_pow[ADIM * ADIM];
+
+	for (uint8_t i = 1; i < HORIZON; i++) {
+		mul(A_pow, A, A_copy, ADIM, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
+		mul(T, C, A_pow, YDIM, ADIM, ADIM, ADIM); // T = C*A^(1+i)
+		memcpy(PHI + i * YDIM * ADIM, T,
+		       YDIM * ADIM * sizeof(float)); // Insert temporary T into PHI
+		memcpy(A_copy, A_pow, ADIM * ADIM * sizeof(float)); // A_copy <- A_pow
+	}
+}
+
+/*
+ * Lower triangular toeplitz of extended observability matrix
+ * CAB stands for C*A^i*B because every element is C*A*B
+ */
+static void cab(float GAMMA[], float PHI[], const float *const A, float B[], float C[],
+		uint8_t ADIM, uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON)
+{
+	(void)A;
+	// First create the initial C*A^0*B == C*I*B == C*B
+	float CB[YDIM * RDIM];
+
+	mul(CB, C, B, YDIM, ADIM, ADIM, RDIM);
+
+	// Take the transpose of CB so it will have dimension RDIM*YDIM instead
+	tran(CB, CB, YDIM, RDIM);
+
+	// Create the CAB matrix from PHI*B
+	float PHIB[HORIZON * YDIM * RDIM];
+
+	mul(PHIB, PHI, B, HORIZON * YDIM, ADIM, ADIM, RDIM); // CAB = PHI*B
+	tran(PHIB, PHIB, HORIZON * YDIM, RDIM);
+
+	/*
+	 * We insert GAMMA = [CB PHI;
+	 *                    0  CB PHI;
+	 *                    0   0  CB PHI;
+	 *                    0   0   0  CB PHI] from left to right
+	 */
+	for (uint8_t i = 0; i < HORIZON; i++) {
+		for (uint8_t j = 0; j < RDIM; j++) {
+			memcpy(GAMMA + HORIZON * YDIM * (i * RDIM + j) + YDIM * i, CB + YDIM * j,
+			       YDIM * sizeof(float)); // Add CB
+			memcpy(GAMMA + HORIZON * YDIM * (i * RDIM + j) + YDIM * i + YDIM,
+			       PHIB + HORIZON * YDIM * j,
+			       (HORIZON - i - 1) * YDIM * sizeof(float)); // Add PHI*B
+		}
+	}
+
+	// Transpose of gamma
+	tran(GAMMA, GAMMA, HORIZON * RDIM, HORIZON * YDIM);
+}
+
+int mpc(float A[], float B[], float C[], float x[], float u[], const float *const r, uint8_t ADIM,
+	uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT, bool has_integration)
+{
+	if (HORIZON == 0) {
+		// Horizon can not be zero!
+		return -EINVAL;
+	}
+	if (YDIM == 0) {
+		// we must have measurement!
+		return -EINVAL;
+	}
+	if (RDIM == 0) {
+		// we must have reference and output dimension
+		return -EINVAL;
+	}
+
 	// Create the extended observability matrix
 	float PHI[HORIZON * YDIM * ADIM];
 
@@ -100,80 +186,6 @@ void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8
 			u[i] = R_vec[HORIZON * RDIM - RDIM + i];
 		}
 	}
-}
 
-/*
- * [C*A^1; C*A^2; C*A^3; ... ; C*A^HORIZON] % Extended observability matrix
- */
-static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, uint8_t RDIM,
-		 uint8_t HORIZON)
-{
-	(void)RDIM;
-	// This matrix will A^(i+1) all the time
-	float A_copy[ADIM * ADIM];
-
-	memcpy(A_copy, A, ADIM * ADIM * sizeof(float));
-
-	// Temporary matrix
-	float T[YDIM * ADIM];
-	//memset(T, 0, YDIM * ADIM * sizeof(float));
-
-	// Regular T = C*A^(1+i)
-	mul(T, C, A, YDIM, ADIM, ADIM, ADIM);
-
-	// Insert temporary T into PHI
-	memcpy(PHI, T, YDIM * ADIM * sizeof(float));
-
-	// Do the rest C*A^(i+1) because we have already done i = 0
-	float A_pow[ADIM * ADIM];
-
-	for (uint8_t i = 1; i < HORIZON; i++) {
-		mul(A_pow, A, A_copy, ADIM, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
-		mul(T, C, A_pow, YDIM, ADIM, ADIM, ADIM); // T = C*A^(1+i)
-		memcpy(PHI + i * YDIM * ADIM, T,
-		       YDIM * ADIM * sizeof(float)); // Insert temporary T into PHI
-		memcpy(A_copy, A_pow, ADIM * ADIM * sizeof(float)); // A_copy <- A_pow
-	}
-}
-
-/*
- * Lower triangular toeplitz of extended observability matrix
- * CAB stands for C*A^i*B because every element is C*A*B
- */
-static void cab(float GAMMA[], float PHI[], float A[], float B[], float C[], uint8_t ADIM,
-		uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON)
-{
-	(void)A;
-	// First create the initial C*A^0*B == C*I*B == C*B
-	float CB[YDIM * RDIM];
-
-	mul(CB, C, B, YDIM, ADIM, ADIM, RDIM);
-
-	// Take the transpose of CB so it will have dimension RDIM*YDIM instead
-	tran(CB, CB, YDIM, RDIM);
-
-	// Create the CAB matrix from PHI*B
-	float PHIB[HORIZON * YDIM * RDIM];
-
-	mul(PHIB, PHI, B, HORIZON * YDIM, ADIM, ADIM, RDIM); // CAB = PHI*B
-	tran(PHIB, PHIB, HORIZON * YDIM, RDIM);
-
-	/*
-	 * We insert GAMMA = [CB PHI;
-	 *                    0  CB PHI;
-	 *                    0   0  CB PHI;
-	 *                    0   0   0  CB PHI] from left to right
-	 */
-	for (uint8_t i = 0; i < HORIZON; i++) {
-		for (uint8_t j = 0; j < RDIM; j++) {
-			memcpy(GAMMA + HORIZON * YDIM * (i * RDIM + j) + YDIM * i, CB + YDIM * j,
-			       YDIM * sizeof(float)); // Add CB
-			memcpy(GAMMA + HORIZON * YDIM * (i * RDIM + j) + YDIM * i + YDIM,
-			       PHIB + HORIZON * YDIM * j,
-			       (HORIZON - i - 1) * YDIM * sizeof(float)); // Add PHI*B
-		}
-	}
-
-	// Transpose of gamma
-	tran(GAMMA, GAMMA, HORIZON * RDIM, HORIZON * YDIM);
+	return 0;
 }

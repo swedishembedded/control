@@ -7,13 +7,15 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
+#include <float.h>
 #include <math.h>
 #include <string.h>
-#include <control/linalg.h>
 
 static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row);
 static void prepare(float *A, uint16_t row);
-#define abs_sign(a, b) ((b) >= 0.0 ? fabsf(a) : -fabsf(a)) // Special case for qr_hess function
+#define abs_sign(a, b) ((b) >= 0.0f ? fabsf(a) : -fabsf(a)) // Special case for qr_hess function
 
 /*
  * Find eigenvalues from a general matrix
@@ -46,7 +48,7 @@ static void prepare(float *A, uint16_t row)
 	float y, x, t;
 
 	for (m = 1; m < row; m++) {
-		x = 0.0;
+		x = 0.0f;
 		i = m;
 		for (j = m; j < row; j++) {
 			if (fabsf(*(A + row * j + m - 1)) > fabsf(x)) {
@@ -90,43 +92,46 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 	int nn, m, l, k, j, its, i, mmin;
 	float z, y, x, w, v, u, t, s, r, q, p, anorm;
 
-	p = q = r = 0.0;
-	anorm = 0.0;
-	for (i = 0; i < row; i++)
-		for (j = i - 1 > 0 ? i - 1 : 0; j < row; j++)
+	p = q = r = 0.0f;
+	anorm = 0.0f;
+	for (i = 0; i < row; i++) {
+		for (j = i - 1 > 0 ? i - 1 : 0; j < row; j++) {
 			anorm += fabsf(*(A + row * i + j));
+		}
+	}
 	nn = row - 1;
-	t = 0.0;
+	t = 0.0f;
 	while (nn >= 0) {
 		its = 0;
 		do {
 			for (l = nn; l > 0; l--) {
 				s = fabsf(*(A + row * (l - 1) + l - 1)) + fabsf(*(A + row * l + l));
-				if (s == 0.0)
+				if (fabsf(s) < FLT_EPSILON)
 					s = anorm;
 				if (fabsf(*(A + row * l + l - 1)) + s == s) {
-					*(A + row * l + l - 1) = 0.0;
+					*(A + row * l + l - 1) = 0.0f;
 					break;
 				}
 			}
 			x = *(A + row * nn + nn);
 			if (l == nn) {
 				*(wr + nn) = x + t;
-				*(wi + nn--) = 0.0;
+				*(wi + nn--) = 0.0f;
 			} else {
 				y = *(A + row * (nn - 1) + nn - 1);
 				w = *(A + row * nn + nn - 1) * *(A + row * (nn - 1) + nn);
 				if (l == nn - 1) {
-					p = 0.5 * (y - x);
+					p = 0.5f * (y - x);
 					q = p * p + w;
 					z = sqrtf(fabsf(q));
 					x += t;
-					if (q >= 0.0) {
+					if (q >= 0.0f) {
 						z = p + abs_sign(z, p);
 						*(wr + nn - 1) = *(wr + nn) = x + z;
-						if (z != 0.0)
+						if (fabsf(z) > FLT_EPSILON) {
 							*(wr + nn) = x - w / z;
-						*(wi + nn - 1) = *(wi + nn) = 0.0;
+						}
+						*(wi + nn - 1) = *(wi + nn) = 0.0f;
 					} else {
 						*(wr + nn - 1) = *(wr + nn) = x + p;
 						*(wi + nn - 1) = -(*(wi + nn) = z);
@@ -143,8 +148,8 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 							*(A + row * i + i) -= x;
 						s = fabsf(*(A + row * nn + nn - 1)) +
 						    fabsf(*(A + row * (nn - 1) + nn - 2));
-						y = x = 0.75 * s;
-						w = -0.4375 * s * s;
+						y = x = 0.75f * s;
+						w = -0.4375f * s * s;
 					}
 					++its;
 					for (m = nn - 2; m >= l; m--) {
@@ -171,19 +176,19 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 							break;
 					}
 					for (i = m; i < nn - 1; i++) {
-						*(A + row * (i + 2) + i) = 0.0;
+						*(A + row * (i + 2) + i) = 0.0f;
 						if (i != m)
-							*(A + row * (i + 2) + i - 1) = 0.0;
+							*(A + row * (i + 2) + i - 1) = 0.0f;
 					}
 					for (k = m; k < nn; k++) {
 						if (k != m) {
 							p = *(A + row * k + k - 1);
 							q = *(A + row * (k + 1) + k - 1);
-							r = 0.0;
+							r = 0.0f;
 							if (k != nn - 1)
 								r = *(A + row * (k + 2) + k - 1);
 							x = fabsf(p) + fabsf(q) + fabsf(r);
-							if (x != 0.0) {
+							if (x > FLT_EPSILON) {
 								p /= x;
 								q /= x;
 								r /= x;
@@ -192,12 +197,14 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 						s = abs_sign(sqrtf(p * p + q * q + r * r), p);
 						if (s != 0.0) {
 							if (k == m) {
-								if (l != m)
+								if (l != m) {
 									*(A + row * k + k - 1) =
 										-*(A + row * k + k -
 										   1);
-							} else
+								}
+							} else {
 								*(A + row * k + k - 1) = -s * x;
+							}
 							p += s;
 							x = p / s;
 							y = q / s;

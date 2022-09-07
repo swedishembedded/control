@@ -7,15 +7,16 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
+#include "control/linalg.h"
+
 #include <math.h>
-#include <control/linalg.h>
+#include <string.h>
 
 void svd_jacobi_one_sided(const float *const Ain, uint16_t row, uint8_t max_iterations, float *U,
 			  float *S, float *V)
 {
 	// i and j are the indices of the point we've chosen to zero out
-	float al, b, c, l, t, cs, sn, tmp, sign;
+	float al, b, c;
 	int i, j, p, k;
 	float A[row * row];
 
@@ -35,7 +36,7 @@ void svd_jacobi_one_sided(const float *const Ain, uint16_t row, uint8_t max_iter
 		// For all pairs i < j
 		for (i = 0; i < row; i++) {
 			for (j = i + 1; j < row; j++) {
-				al = b = c = l = t = cs = sn = tmp = sign = 0.0;
+				al = b = c = 0.0f;
 				// Find the 2x2 submatrix
 				for (k = 0; k < row; k++) {
 					al += *(A + row * k + i) * *(A + row * k + i);
@@ -44,24 +45,29 @@ void svd_jacobi_one_sided(const float *const Ain, uint16_t row, uint8_t max_iter
 				}
 
 				// Compute Jacobi rotation
-				l = (b - al) / (2.0 * c);
-				sign = 1.0;
-				if (l < 0.0)
-					sign = -1.0;
-				t = sign / ((sign * l) + sqrtf(1.0 + l * l));
-				cs = 1.0 / sqrtf(1.0 + t * t);
-				sn = cs * t;
+				float l = (b - al) / (2.0f * c);
+
+				float sign = 1.0f;
+
+				if (l < 0.0f)
+					sign = -1.0f;
+
+				float t = sign / ((sign * l) + sqrtf(1.0f + l * l));
+				float cs = 1.0f / sqrtf(1.0f + t * t);
+				float sn = cs * t;
 
 				// Change columns i and j only
 				for (k = 0; k < row; k++) {
-					tmp = *(A + row * k + i);
+					float tmp = *(A + row * k + i);
+
 					*(A + row * k + i) = cs * tmp - sn * *(A + row * k + j);
 					*(A + row * k + j) = sn * tmp + cs * *(A + row * k + j);
 				}
 
 				// Update the right singular vectors
 				for (k = 0; k < row; k++) {
-					tmp = *(V + row * k + i);
+					float tmp = *(V + row * k + i);
+
 					*(V + row * k + i) = cs * tmp - sn * *(V + row * k + j);
 					*(V + row * k + j) = sn * tmp + cs * *(V + row * k + j);
 				}
@@ -74,23 +80,26 @@ void svd_jacobi_one_sided(const float *const Ain, uint16_t row, uint8_t max_iter
 		for (i = 0; i < row; i++) {
 			*(S + j) += *(A + row * i + j) * *(A + row * i + j);
 		}
-		tmp = *(S + j);
-		*(S + j) = sqrtf(tmp);
+
+		*(S + j) = sqrtf(*(S + j));
 	}
 
 	// Sort the singular values largest to smallest, and the right matrix accordingly
 	for (p = 0; p < (row - 1); p++) {
 		for (j = 0; j < row - p - 1; j++) {
 			if (*(S + j) < *(S + j + 1)) {
-				tmp = *(S + j);
+				float tmp = *(S + j);
+
 				*(S + j) = *(S + j + 1);
 				*(S + j + 1) = tmp;
 
 				// Rearrange columns of u and v accordingly
 				for (i = 0; i < row; i++) {
-					tmp = *(V + row * i + j);
+					float tmp = *(V + row * i + j);
+
 					*(V + row * i + j) = *(V + row * i + j + 1);
 					*(V + row * i + j + 1) = tmp;
+
 					tmp = *(A + row * i + j);
 					*(A + row * i + j) = *(A + row * i + j + 1);
 					*(A + row * i + j + 1) = tmp;

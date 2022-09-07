@@ -15,10 +15,12 @@ struct pid {
 	float Kp, Ki, Kd, d;
 };
 
+enum pid_imc_mode { PID_IMC_AGGRESSIVE, PID_IMC_MODERATE, PID_IMC_CONSERVATIVE };
+
 void pid_init(struct pid *self);
 void pid_set_gains(struct pid *self, float Kp, float Ki, float Kd, float d);
 void pid_set_from_imc(struct pid *self, float aggr, float process_gain, float time_constant,
-		      float dead_time);
+		      float dead_time, enum pid_imc_mode mode);
 float pid_step(struct pid *self, float e);
 
 /**
@@ -35,10 +37,11 @@ float pid_step(struct pid *self, float e);
  * \param HORIZON Horizon
  * \param ITERATION_LIMIT Number of iterations
  * \param has_integration set to true is system has an integration behavior
+ * \retval 0 Success
+ * \retval -EINVAL Invalid arguments
  */
-void mpc(float A[], float B[], float C[], float x[], float u[], float r[], uint8_t ADIM,
-	 uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT,
-	 bool has_integration);
+int mpc(float A[], float B[], float C[], float x[], float u[], const float *const r, uint8_t ADIM,
+	uint8_t YDIM, uint8_t RDIM, uint8_t HORIZON, uint8_t ITERATION_LIMIT, bool has_integration);
 /**
  * \brief Linear kalman filter state update
  * \details
@@ -155,10 +158,13 @@ bool is_stable(const float *const A, uint8_t ADIM);
  * \brief Continuous to discrete transformation
  * \details
  *   Turn A and B into discrete form with given sample time
+ * \param Ad discrete output system A matrix [ADIM * ADIM]
+ * \param Bd discrete output system B matrix [ADIM * RDIM]
  * \param A System A matrix [ADIM * ADIM]
  * \param B System B matrix [ADIM * RDIM]
  * \param ADIM Size of system A matrix (rows and columns)
  * \param RDIM Number of rows in B matrix
  * \param sampleTime Sampling time
  **/
-void c2d(float *A, float *B, uint8_t ADIM, uint8_t RDIM, float sampleTime);
+void c2d(float *Ad, float *Bd, const float *const A, const float *const B, uint8_t ADIM,
+	 uint8_t RDIM, float sampleTime);

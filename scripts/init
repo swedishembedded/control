@@ -4,5 +4,5 @@
 # Consulting: https://swedishembedded.com/go
 # Training: https://swedishembedded.com/tag/training
 
-apt update &&
-apt install -qy libgtest-dev
+apt-get update &&
+  apt-get install -qy libgtest-dev clang-tidy

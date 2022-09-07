@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 void sum(float *Ar, const float *const A, uint16_t row, uint16_t column, uint8_t l)
 {

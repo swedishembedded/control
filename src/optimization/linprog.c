@@ -7,12 +7,12 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
-#include <math.h>
-#include <float.h>
+#include "control/optimization.h"
+#include "control/linalg.h"
 
-#include <control/optimization.h>
-#include <control/linalg.h>
+#include <float.h>
+#include <math.h>
+#include <string.h>
 
 static void opti(float c[], float A[], float b[], float x[], uint8_t row_a, uint8_t column_a,
 		 uint8_t max_or_min, uint8_t iteration_limit);
@@ -103,22 +103,22 @@ static void opti(float c[], float A[], float b[], float x[], uint8_t row_a, uint
 	// Done!
 
 	// Do row operations
-	float entry = 0.0;
+	float entry = 0.0f;
 	int pivotColumIndex = 0;
 	int pivotRowIndex = 0;
-	float pivot = 0.0;
-	float value1 = 0.0;
-	float value2 = 0.0;
-	float value3 = 0.0;
-	float smallest = 0.0;
+	float pivot = 0.0f;
+	float value1 = 0.0f;
+	float value2 = 0.0f;
+	float value3 = 0.0f;
+	float smallest = 0.0f;
 	int count = 0;
 
 	do {
 		// Find our pivot column
 		pivotColumIndex = 0;
-		entry = 0.0;
+		entry = 0.0f;
 		// -1 because we don't want to count with the last column
-		for (uint8_t i = 0; i < (column_a + row_a + 2) - 1; i++) {
+		for (int i = 0; i < (column_a + row_a + 2) - 1; i++) {
 			value1 =
 				tableau[(row_a + 1 - 1) * (column_a + row_a + 2) + i]; // Bottom row
 			if (value1 < entry) {
@@ -134,16 +134,18 @@ static void opti(float c[], float A[], float b[], float x[], uint8_t row_a, uint
 		pivotRowIndex = 0;
 		value1 = *(tableau + 0 * (column_a + row_a + 2) +
 			   pivotColumIndex); // Value in pivot column
-		if (value1 == 0)
+		if (value1 == 0) {
 			value1 = FLT_EPSILON; // Make sure that we don't divide by zero
+		}
 		value2 = tableau[0 * (column_a + row_a + 2) +
 				 (column_a + row_a + 2 - 1)]; // Value in the b vector
 		smallest = value2 / value1; // Initial smallest value
 		for (int i = 1; i < row_a; i++) {
 			value1 = tableau[i * (column_a + row_a + 2) +
 					 pivotColumIndex]; // Value in pivot column
-			if (value1 == 0)
+			if (value1 == 0) {
 				value1 = FLT_EPSILON;
+			}
 			value2 = tableau[i * (column_a + row_a + 2) +
 					 (column_a + row_a + 2 - 1)]; // Value in the b vector
 			value3 = value2 / value1;
@@ -157,9 +159,10 @@ static void opti(float c[], float A[], float b[], float x[], uint8_t row_a, uint
 		// 1/pivot * PIVOT_ROW -> PIVOT_ROW
 		pivot = tableau[pivotRowIndex * (column_a + row_a + 2) +
 				pivotColumIndex]; // Our pivot value
-		if (pivot == 0)
+		if (pivot == 0) {
 			pivot = FLT_EPSILON;
-		for (uint8_t i = 0; i < (column_a + row_a + 2); i++) {
+		}
+		for (int i = 0; i < (column_a + row_a + 2); i++) {
 			value1 = tableau[pivotRowIndex * (column_a + row_a + 2) +
 					 i]; // Our row value at pivot row
 			tableau[pivotRowIndex * (column_a + row_a + 2) + i] =

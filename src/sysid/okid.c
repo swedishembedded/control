@@ -7,20 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
-#include <control/sysid.h>
+#include "control/sysid.h"
 
-/*
- * Observer kalman filter identification.
- * This is the basic version, e.g it won't give you the kalman gain K matrix.
- * If you need fully version, then look for MataveID at GitHub
- * First collect your inputs u and outputs y and create impulse response g, called Markov parameters.
- * Then you must use era.c algorithm to convert impulse response g into a linear state space model.
- * Data length need to be the same as the column length n!
- * u [m*n]
- * y [m*n]
- * g [m*n] Markov parameters
- */
+#include <string.h>
+
 void okid(float u[], float y[], float g[], uint16_t row, uint16_t column)
 {
 	/**

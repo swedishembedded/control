@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 /*
  * Prepare A and b into upper triangular with triu.
@@ -19,7 +20,7 @@
 static void triu(float *A, float *b, uint16_t row)
 {
 	// Make A to upper triangular. Also change b as well.
-	float pivot = 0.0;
+	float pivot = 0.0f;
 
 	// Column
 	for (uint16_t j = 0; j < row; j++) {

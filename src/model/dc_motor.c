@@ -4,24 +4,27 @@
  * Consulting: https://swedishembedded.com/go
  * Training: https://swedishembedded.com/tag/training
  **/
+
+#include "control/linalg.h"
+#include "control/model/dc_motor.h"
+
 #undef __STRICT_ANSI__
+
 #include <math.h>
 #include <string.h>
-#include <control/linalg.h>
-#include <control/model/dc_motor.h>
 
 void model_dc_motor_init(struct model_dc_motor *self)
 {
 	memset(self, 0, sizeof(*self));
-	self->u[0] = 0;
-	self->J = 0.01;
-	self->b = 0.1;
-	self->K = 0.01;
-	self->R = 1;
-	self->L = 0.5;
-	self->Ts = 0.1;
-	self->limits.voltage = 24;
-	self->limits.current = 10;
+	self->u[0] = 0.0f;
+	self->J = 0.01f;
+	self->b = 0.1f;
+	self->K = 0.01f;
+	self->R = 1.0f;
+	self->L = 0.5f;
+	self->Ts = 0.1f;
+	self->limits.voltage = 24.0f;
+	self->limits.current = 10.0f;
 }
 
 void model_dc_motor_step(struct model_dc_motor *self)
@@ -34,10 +37,12 @@ void model_dc_motor_step(struct model_dc_motor *self)
 	const float Ts = self->Ts;
 
 	// apply limits
-	if (self->u[0] < -self->limits.voltage)
+	if (self->u[0] < -self->limits.voltage) {
 		self->u[0] = -self->limits.voltage;
-	if (self->u[0] > self->limits.voltage)
+	}
+	if (self->u[0] > self->limits.voltage) {
 		self->u[0] = self->limits.voltage;
+	}
 
 	self->A[0 * 2 + 0] =
 		J * (L + R * Ts) / (powf(K, 2) * powf(Ts, 2) + (J + Ts * b) * (L + R * Ts));
@@ -69,10 +74,11 @@ void model_dc_motor_step(struct model_dc_motor *self)
 	self->y[0] = Cx[0] + Du[0];
 	// integrate rotor angle
 	self->position += self->x[0] * Ts;
-	self->position = fmodf(self->position + M_PI, 2 * M_PI);
-	if (self->position < 0)
-		self->position += 2 * M_PI;
-	self->position = self->position - M_PI;
+	self->position = fmodf(self->position + (float)M_PI, 2.0f * (float)M_PI);
+	if (self->position < 0) {
+		self->position += 2.0f * (float)M_PI;
+	}
+	self->position -= (float)M_PI;
 }
 
 float model_dc_motor_get_omega(struct model_dc_motor *self)

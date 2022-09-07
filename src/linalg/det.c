@@ -17,7 +17,7 @@
  */
 float det(const float *const A, uint16_t row)
 {
-	float determinant = 1.0;
+	float determinant = 1.0f;
 	float LU[row * row];
 	uint8_t P[row];
 

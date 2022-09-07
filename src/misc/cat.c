@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/misc.h"
+
 #include <assert.h>
 #include <string.h>
-#include <control/misc.h>
 
 void cat(float *C, const float *const A, const float *const B, int vertical, uint16_t row_a,
 	 uint16_t column_a, uint16_t row_b, uint16_t column_b, uint16_t row_c, uint16_t column_c)

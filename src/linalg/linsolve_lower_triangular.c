@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 /*
  * Solve with forward substitution. This can be used with Cholesky decomposition
@@ -21,12 +22,13 @@ void linsolve_lower_triangular(const float *const A, float x[], const float *con
 {
 	// Time to solve x from Ax = b.
 	memset(x, 0, row * sizeof(float));
-	float sum;
 
 	for (uint16_t i = 0; i < row; i++) {
-		sum = 0;
-		for (uint16_t j = 0; j < i; j++)
+		float sum = 0;
+
+		for (uint16_t j = 0; j < i; j++) {
 			sum = sum + A[row * i + j] * x[j];
+		}
 
 		x[i] = (b[i] - sum) / A[row * i + i];
 	}

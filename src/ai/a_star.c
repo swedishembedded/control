@@ -7,10 +7,11 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/ai.h"
+
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
-#include <control/ai.h>
+#include <string.h>
 
 static void heuristic_map(int *map, int x_stop, int y_stop, int height, int width,
 			  uint8_t norm_mode);
@@ -42,9 +43,10 @@ void a_star(const int *const map_in, int path_x[], int path_y[], int x_start, in
 
 	for (int k = 0; k < height * width; k++) {
 		// Look to the left, right, up and down
-		for (int index = 0; index < 4; index++)
+		for (int index = 0; index < 4; index++) {
 			direction[index] =
 				map[(y + y_directions[index]) * width + x + x_directions[index]];
+		}
 
 		// Take the decision where to go by looking at direction array
 		minValue = direction[0];
@@ -70,14 +72,18 @@ void a_star(const int *const map_in, int path_x[], int path_y[], int x_start, in
 		path_y[k] = y;
 
 		// Where to go - position variable tells
-		if (position == 0)
+		if (position == 0) {
 			x--; // Go one step left
-		if (position == 1)
+		}
+		if (position == 1) {
 			x++; // Go one step right
-		if (position == 2)
+		}
+		if (position == 2) {
 			y--; // Go one step up
-		if (position == 3)
+		}
+		if (position == 3) {
 			y++; // Go one step down
+		}
 
 		// Check if we are at our goal
 		if (*(map + y * width + x) == 0) {
@@ -141,8 +147,9 @@ void a_star(const int *const map_in, int path_x[], int path_y[], int x_start, in
 					    y + y_directions[index] == path_y[j]) {
 						// We want to have the largest "gap",
 						// which is the zigzag
-						if (j > position)
+						if (j > position) {
 							position = j;
+						}
 					}
 				}
 				// If we got zigzag.
@@ -201,11 +208,13 @@ static void heuristic_map(int map[], int x_stop, int y_stop, int height, int wid
 				int dy = (y_stop + i) - (j + i);
 
 				// L1-Norm
-				if (norm_mode == 1)
+				if (norm_mode == 1) {
 					map[j * width + i] = abs(dx) + abs(dy);
+				}
 				// L2-Norm (without square root, not needed due to integers)
-				if (norm_mode == 2)
+				if (norm_mode == 2) {
 					map[j * width + i] = dx * dx + dy * dy;
+				}
 				// You can add more heuristic here!
 			}
 		}

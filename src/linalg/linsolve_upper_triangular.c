@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 /*
  * This solves Ax = b.
@@ -22,20 +23,19 @@ void linsolve_upper_triangular(const float *const A, float x[], const float *con
 {
 	// Time to solve x from Ax = b.
 	memset(x, 0, column * sizeof(float));
-	float sum;
 
 	// Column
-	for (int16_t i = column - 1; i >= 0; i--) {
-		sum = 0.0; // This is our sum
+	for (int i = column - 1; i >= 0; i--) {
+		float sum = 0.0f; // This is our sum
 		// Row
-		for (int16_t j = i; j < column; j++) {
+		for (int j = i; j < column; j++) {
 			sum += A[i * column + j] * x[j];
 		}
 		x[i] = (b[i] - sum) / A[i * column + i];
 
-		// For backwards unsigned for-loops, important because uint16 i = -1 is actually 65535
-		if (i == 0)
+		if (i == 0) {
 			break;
+		}
 	}
 }
 
