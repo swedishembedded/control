@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
 #include "control/dynamics.h"
+
+#include <string.h>
 
 void theta2ss(float *A, float *B, float *C, float *K, const float *const theta, uint8_t ADIM,
 	      uint8_t NP, uint8_t NZ, uint8_t NZE, bool integral_action)

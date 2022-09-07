@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <errno.h>
-#include <control/linalg.h>
 
 int mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
 	uint16_t row_b, uint16_t column_b)

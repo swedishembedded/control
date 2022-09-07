@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <math.h>
 #include <string.h>
-#include <control/linalg.h>
 
 float norm(const float *const Ain, uint16_t row, uint16_t column, uint8_t l)
 {

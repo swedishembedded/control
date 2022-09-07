@@ -7,32 +7,33 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
+#include "control/linalg.h"
+
 #include <errno.h>
-#include <math.h>
 #include <float.h>
-#include <control/linalg.h>
+#include <math.h>
+#include <string.h>
 
 int lup(const float *const A, float *LU, uint8_t *P, uint16_t row)
 {
-	// Variables
-	uint16_t ind_max, tmp_int;
-
 	// If not the same
 	if (A != LU)
 		memcpy(LU, A, row * row * sizeof(float));
 
 	// Create the pivot vector
-	for (uint16_t i = 0; i < row; ++i)
+	for (uint16_t i = 0; i < row; ++i) {
 		P[i] = i;
+	}
 
 	for (uint16_t i = 0; i < row - 1; ++i) {
-		ind_max = i;
+		uint16_t ind_max = i;
+
 		for (uint16_t j = i + 1; j < row; ++j)
 			if (fabsf(LU[row * P[j] + i]) > fabsf(LU[row * P[ind_max] + i]))
 				ind_max = j;
 
-		tmp_int = P[i];
+		uint16_t tmp_int = P[i];
+
 		P[i] = P[ind_max];
 		P[ind_max] = tmp_int;
 

@@ -6,13 +6,18 @@
 
 [[ -d build ]] && rm -rf build
 
+set -e
+
 mkdir -p build
 cd build
-cmake ..
+cmake \
+	-DCHECK_CLANG_TIDY=ON \
+	..
 make -j8
 make docs | grep "warning:" && {
 	echo "There were documentation errors"
 	echo "Rerun 'make docs' again and check it"
+	exit 1
 }
 cpack
 cd ..

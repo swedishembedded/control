@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/misc.h"
+
 #include <math.h>
-#include <control/misc.h>
 
 /*
  * Compute Standard deviation
@@ -20,8 +21,9 @@ float stddev(const float *const x, uint16_t length)
 	float mu = mean(x, length);
 	float sigma = 0;
 
-	for (uint16_t i = 0; i < length; i++)
+	for (uint16_t i = 0; i < length; i++) {
 		sigma += (x[i] - mu) * (x[i] - mu);
+	}
 
 	return sqrtf(sigma / ((float)length - 1));
 }

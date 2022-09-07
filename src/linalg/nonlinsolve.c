@@ -7,12 +7,13 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <math.h>
+#include "control/linalg.h"
+
 #include <float.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdlib.h>
-#include <control/linalg.h>
 
 static float check_solution(float dx[], float x[], float *past_sqrt_sum_dx, float best_x[],
 			    uint8_t *elements);
@@ -43,8 +44,10 @@ void nonlinsolve(void (*nonlinear_equation_system)(float[], float[], float[]), f
 
 		for (uint32_t i = 0; i < random_iterations; i++) {
 			// Init x with random values between min_value and max_value
-			for (uint8_t j = 0; j < elements; j++)
-				x[j] = difference_value * ((float)rand() / RAND_MAX) + min_value;
+			for (uint8_t j = 0; j < elements; j++) {
+				x[j] = difference_value * ((float)rand() / (float)RAND_MAX) +
+				       min_value;
+			}
 
 			// Simulate the nonlinear system
 			(*nonlinear_equation_system)(dx, b, x);
@@ -73,14 +76,18 @@ void nonlinsolve(void (*nonlinear_equation_system)(float[], float[], float[]), f
 		past_sqrt_sum_dx = sqrt_sum_dx;
 
 		// Update the vector x using stochastic gradient descent
-		for (uint8_t j = 0; j < elements; j++)
-			x[j] -= (alpha + past_gradients[gradient_index]) *
-				dx[j]; // x = x - alpha * dx
-		past_gradients[gradient_index] =
-			alpha * norm(dx, 1, elements, 2); // Save the last for next time.
+		for (uint8_t j = 0; j < elements; j++) {
+			// x = x - alpha * dx
+			x[j] -= (alpha + (float)past_gradients[gradient_index]) * dx[j];
+		}
+
+		// Save the last for next time.
+		past_gradients[gradient_index] = alpha * norm(dx, 1, elements, 2);
+
 		gradient_index++;
-		if (gradient_index >= maximum_gradients_index)
+		if (gradient_index >= maximum_gradients_index) {
 			gradient_index = 0; // Reset
+		}
 	}
 
 	// Copy over our final solution x

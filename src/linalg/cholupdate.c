@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <math.h>
 #include <string.h>
-#include <control/linalg.h>
 
 /*
  * Create L = cholupdate(L, x, rank_one_update)
@@ -20,14 +21,14 @@
  */
 void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_update)
 {
-	float alpha = 0.0, beta = 1.0, beta2 = 0.0, gamma = 0.0, delta = 0.0;
+	float alpha = 0.0f, beta = 1.0f, beta2 = 0.0f, gamma = 0.0f, delta = 0.0f;
 	float x[row];
 
 	memcpy(x, xx, sizeof(x));
 
 	tran(L, L, row, row);
 
-	for (uint8_t i = 0; i < row; i++) {
+	for (int i = 0; i < row; i++) {
 		alpha = x[i] / L[row * i + i];
 		beta2 = rank_one_update == true ? sqrtf(beta * beta + alpha * alpha) :
 						  sqrtf(beta * beta - alpha * alpha);
@@ -40,11 +41,11 @@ void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_upd
 
 			if (i < row) {
 				// line 34 in tripfield chol_updown function
-				for (uint8_t k = i + 1; k < row; k++)
+				for (int k = i + 1; k < row; k++)
 					x[k] -= alpha * L[row * k + i];
 
 				// line 35 in tripfield chol_updown function
-				for (uint8_t k = i + 1; k < row; k++)
+				for (int k = i + 1; k < row; k++)
 					L[row * k + i] = delta * L[row * k + i] + gamma * x[k];
 			}
 			x[i] = alpha;
@@ -55,11 +56,13 @@ void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_upd
 			L[row * i + i] = delta * L[row * i + i];
 
 			if (i < row) {
-				for (uint8_t k = i + 1; k < row; k++)
+				for (int k = i + 1; k < row; k++) {
 					x[k] -= alpha * L[row * k + i];
+				}
 
-				for (uint8_t k = i + 1; k < row; k++)
+				for (int k = i + 1; k < row; k++) {
 					L[row * k + i] = delta * L[row * k + i] + gamma * x[k];
+				}
 			}
 			x[i] = alpha;
 			beta = beta2;

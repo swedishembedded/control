@@ -5,7 +5,7 @@
 
 config CONTROL
 	bool "Swedish Embedded control engineering library"
-	default y
+	default n
 	depends on NEWLIB_LIBC || EXTERNAL_LIBC
 	help
 		Control engineering algorithm library

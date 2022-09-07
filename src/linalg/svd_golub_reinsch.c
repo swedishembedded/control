@@ -7,11 +7,12 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <math.h>
-#include <float.h>
-#include <string.h>
+#include "control/linalg.h"
+
 #include <errno.h>
-#include <control/linalg.h>
+#include <float.h>
+#include <math.h>
+#include <string.h>
 
 // Private functions
 static void Householders_Reduction_to_Bidiagonal_Form(const float *const A, uint16_t nrows,
@@ -51,9 +52,9 @@ static void Householders_Reduction_to_Bidiagonal_Form(const float *const Ain, ui
 	memcpy(A, Ain, sizeof(A));
 	memcpy(U, Ain, sizeof(float) * nrows * ncols);
 
-	diagonal[0] = 0.0;
-	s = 0.0;
-	scale = 0.0;
+	diagonal[0] = 0.0f;
+	s = 0.0f;
+	scale = 0.0f;
 	for (i = 0, pui = U, ip1 = 1; i < ncols; pui += ncols, i++, ip1++) {
 		superdiagonal[i] = scale * s;
 		//
@@ -62,95 +63,87 @@ static void Householders_Reduction_to_Bidiagonal_Form(const float *const Ain, ui
 		//       Calculate the normed squared of the i-th column vector starting at
 		//       row i.
 		//
-		for (j = i, pu = pui, scale = 0.0; j < nrows; j++, pu += ncols)
+		for (j = i, pu = pui, scale = 0.0f; j < nrows; j++, pu += ncols) {
 			scale += fabsf(*(pu + i));
+		}
 
-		if (scale > 0.0) {
-			for (j = i, pu = pui, s2 = 0.0; j < nrows; j++, pu += ncols) {
+		if (scale > 0.0f) {
+			for (j = i, pu = pui, s2 = 0.0f; j < nrows; j++, pu += ncols) {
 				*(pu + i) /= scale;
 				s2 += *(pu + i) * *(pu + i);
 			}
-			//
-			//
-			//       Chose sign of s which maximizes the norm
-			//
-			s = (*(pui + i) < 0.0) ? sqrtf(s2) : -sqrtf(s2);
-			//
-			//       Calculate -2/u'u
-			//
+			// Chose sign of s which maximizes the norm
+			s = (*(pui + i) < 0.0f) ? sqrtf(s2) : -sqrtf(s2);
+			// Calculate -2/u'u
 			half_norm_squared = *(pui + i) * s - s2;
-			//
-			//       Transform remaining columns by the Householder transform.
-			//
+			// Transform remaining columns by the Householder transform.
 			*(pui + i) -= s;
 
 			for (j = ip1; j < ncols; j++) {
-				for (k = i, si = 0.0, pu = pui; k < nrows; k++, pu += ncols)
+				for (k = i, si = 0.0f, pu = pui; k < nrows; k++, pu += ncols) {
 					si += *(pu + i) * *(pu + j);
+				}
 				si /= half_norm_squared;
 				for (k = i, pu = pui; k < nrows; k++, pu += ncols) {
 					*(pu + j) += si * *(pu + i);
 				}
 			}
 		}
-		for (j = i, pu = pui; j < nrows; j++, pu += ncols)
+		for (j = i, pu = pui; j < nrows; j++, pu += ncols) {
 			*(pu + i) *= scale;
+		}
 		diagonal[i] = s * scale;
-		//
-		//       Perform Householder transform on rows.
-		//
-		//       Calculate the normed squared of the i-th row vector starting at
-		//       column i.
-		//
-		s = 0.0;
-		scale = 0.0;
+		// Perform Householder transform on rows.
+		// Calculate the normed squared of the i-th row vector starting at
+		// column i.
+		s = 0.0f;
+		scale = 0.0f;
 		if (i >= nrows || i == (ncols - 1))
 			continue;
 		for (j = ip1; j < ncols; j++)
 			scale += fabsf(*(pui + j));
-		if (scale > 0.0) {
-			for (j = ip1, s2 = 0.0; j < ncols; j++) {
+		if (scale > 0.0f) {
+			for (j = ip1, s2 = 0.0f; j < ncols; j++) {
 				*(pui + j) /= scale;
 				s2 += *(pui + j) * *(pui + j);
 			}
-			s = (*(pui + ip1) < 0.0) ? sqrtf(s2) : -sqrtf(s2);
-			//
-			//       Calculate -2/u'u
-			//
+			s = (*(pui + ip1) < 0.0f) ? sqrtf(s2) : -sqrtf(s2);
+			// Calculate -2/u'u
 			half_norm_squared = *(pui + ip1) * s - s2;
-			//
-			//       Transform the rows by the Householder transform.
-			//
+			// Transform the rows by the Householder transform.
 			*(pui + ip1) -= s;
-			for (k = ip1; k < ncols; k++)
+			for (k = ip1; k < ncols; k++) {
 				superdiagonal[k] = *(pui + k) / half_norm_squared;
+			}
 			if (i < (nrows - 1)) {
 				for (j = ip1, pu = pui + ncols; j < nrows; j++, pu += ncols) {
-					for (k = ip1, si = 0.0; k < ncols; k++)
+					for (k = ip1, si = 0.0f; k < ncols; k++) {
 						si += *(pui + k) * *(pu + k);
+					}
 					for (k = ip1; k < ncols; k++) {
 						*(pu + k) += si * superdiagonal[k];
 					}
 				}
 			}
-			for (k = ip1; k < ncols; k++)
+			for (k = ip1; k < ncols; k++) {
 				*(pui + k) *= scale;
+			}
 		}
 	}
 
 	// Update V
 	pui = U + ncols * (ncols - 2);
 	pvi = V + ncols * (ncols - 1);
-	*(pvi + ncols - 1) = 1.0;
+	*(pvi + ncols - 1) = 1.0f;
 	s = superdiagonal[ncols - 1];
 	pvi -= ncols;
 	for (i = ncols - 2, ip1 = ncols - 1; i >= 0; i--, pui -= ncols, pvi -= ncols, ip1--) {
-		if (s != 0.0) {
+		if (fabsf(s) > FLT_EPSILON) {
 			pv = pvi + ncols;
 			for (j = ip1; j < ncols; j++, pv += ncols)
 				*(pv + i) = (*(pui + j) / *(pui + ip1)) / s;
 			for (j = ip1; j < ncols; j++) {
-				si = 0.0;
+				si = 0.0f;
 				for (k = ip1, pv = pvi + ncols; k < ncols; k++, pv += ncols)
 					si += *(pui + k) * *(pv + j);
 				for (k = ip1, pv = pvi + ncols; k < ncols; k++, pv += ncols)
@@ -159,10 +152,10 @@ static void Householders_Reduction_to_Bidiagonal_Form(const float *const Ain, ui
 		}
 		pv = pvi + ncols;
 		for (j = ip1; j < ncols; j++, pv += ncols) {
-			*(pvi + j) = 0.0;
-			*(pv + i) = 0.0;
+			*(pvi + j) = 0.0f;
+			*(pv + i) = 0.0f;
 		}
-		*(pvi + i) = 1.0;
+		*(pvi + i) = 1.0f;
 		s = superdiagonal[i];
 	}
 
@@ -172,24 +165,28 @@ static void Householders_Reduction_to_Bidiagonal_Form(const float *const Ain, ui
 	for (i = ncols - 1, ip1 = ncols; i >= 0; ip1 = i, i--, pui -= ncols) {
 		s = diagonal[i];
 		for (j = ip1; j < ncols; j++)
-			*(pui + j) = 0.0;
-		if (s != 0.0) {
+			*(pui + j) = 0.0f;
+		if (fabsf(s) > FLT_EPSILON) {
 			for (j = ip1; j < ncols; j++) {
-				si = 0.0;
+				si = 0.0f;
 				pu = pui + ncols;
-				for (k = ip1; k < nrows; k++, pu += ncols)
+				for (k = ip1; k < nrows; k++, pu += ncols) {
 					si += *(pu + i) * *(pu + j);
+				}
 				si = (si / *(pui + i)) / s;
-				for (k = i, pu = pui; k < nrows; k++, pu += ncols)
+				for (k = i, pu = pui; k < nrows; k++, pu += ncols) {
 					*(pu + j) += si * *(pu + i);
+				}
 			}
 			for (j = i, pu = pui; j < nrows; j++, pu += ncols) {
 				*(pu + i) /= s;
 			}
-		} else
-			for (j = i, pu = pui; j < nrows; j++, pu += ncols)
-				*(pu + i) = 0.0;
-		*(pui + i) += 1.0;
+		} else {
+			for (j = i, pu = pui; j < nrows; j++, pu += ncols) {
+				*(pu + i) = 0.0f;
+			}
+		}
+		*(pui + i) += 1.0f;
 	}
 }
 //
@@ -205,10 +202,11 @@ static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, flo
 	int rotation_test;
 	int iteration_count;
 
-	for (i = 0, x = 0.0; i < ncols; i++) {
+	for (i = 0, x = 0.0f; i < ncols; i++) {
 		y = fabsf(diagonal[i]) + fabsf(superdiagonal[i]);
-		if (x < y)
+		if (x < y) {
 			x = y;
+		}
 	}
 	epsilon = x * FLT_EPSILON;
 	for (k = ncols - 1; k >= 0; k--) {
@@ -224,8 +222,8 @@ static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, flo
 					break;
 			}
 			if (rotation_test) {
-				c = 0.0;
-				s = 1.0;
+				c = 0.0f;
+				s = 1.0f;
 				for (i = m; i <= k; i++) {
 					f = s * superdiagonal[i];
 					superdiagonal[i] *= c;
@@ -246,7 +244,7 @@ static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, flo
 			}
 			z = diagonal[k];
 			if (m == k) {
-				if (z < 0.0) {
+				if (z < 0.0f) {
 					diagonal[k] = -z;
 					for (j = 0, pv = V; j < ncols; j++, pv += ncols)
 						*(pv + k) = -*(pv + k);
@@ -260,14 +258,15 @@ static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, flo
 			y = diagonal[k - 1];
 			g = superdiagonal[k - 1];
 			h = superdiagonal[k];
-			f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0 * h * y);
-			g = sqrtf(f * f + 1.0);
-			if (f < 0.0)
+			f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0f * h * y);
+			g = sqrtf(f * f + 1.0f);
+			if (f < 0.0f) {
 				g = -g;
+			}
 			f = ((x - z) * (x + z) + h * (y / (f + g) - h)) / x;
 			// Next QR Transformtion
-			c = 1.0;
-			s = 1.0;
+			c = 1.0f;
+			s = 1.0f;
 			for (i = m + 1; i <= k; i++) {
 				g = superdiagonal[i];
 				y = diagonal[i];
@@ -302,7 +301,7 @@ static int Givens_Reduction_to_Diagonal_Form(uint16_t nrows, uint16_t ncols, flo
 					*(pu + i) = -s * y + c * z;
 				}
 			}
-			superdiagonal[m] = 0.0;
+			superdiagonal[m] = 0.0f;
 			superdiagonal[k] = f;
 			diagonal[k] = x;
 		}

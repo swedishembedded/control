@@ -7,17 +7,18 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 void tran(float *At, const float *const A, uint16_t row, uint16_t column)
 {
 	float B[row * column];
-	float *transpose;
 	const float *ptr_A = A;
 
 	for (uint16_t i = 0; i < row; i++) {
-		transpose = &B[i];
+		float *transpose = &B[i];
+
 		for (uint16_t j = 0; j < column; j++) {
 			*transpose = *ptr_A;
 			ptr_A++;

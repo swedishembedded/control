@@ -21,23 +21,25 @@ int linsolve_lup(const float *const A, float *x, const float *const b, uint16_t 
 	}
 
 	// forward substitution with pivoting
-	for (uint16_t i = 0; i < row; ++i) {
+	for (int i = 0; i < row; ++i) {
 		x[i] = b[P[i]];
 
-		for (uint16_t j = 0; j < i; ++j)
+		for (int j = 0; j < i; ++j) {
 			x[i] = x[i] - LU[row * P[i] + j] * x[j];
+		}
 	}
 
 	// backward substitution with pivoting
-	for (int16_t i = row - 1; i >= 0; --i) {
-		for (int16_t j = i + 1; j < row; ++j)
+	for (int i = row - 1; i >= 0; --i) {
+		for (int j = i + 1; j < row; ++j) {
 			x[i] = x[i] - LU[row * P[i] + j] * x[j];
+		}
 
 		x[i] = x[i] / LU[row * P[i] + i];
 
-		// Important because when i = -1, then i will become 65535
-		if (i == 0)
+		if (i == 0) {
 			break;
+		}
 	}
 
 	return 0;

@@ -7,7 +7,8 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <control/misc.h>
+#include "control/misc.h"
+
 #include <stdio.h>
 
 /*

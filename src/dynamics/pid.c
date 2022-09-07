@@ -5,10 +5,10 @@
  * Training: https://swedishembedded.com/tag/training
  */
 
-#include <string.h>
-#include <math.h>
-
 #include "control/dynamics.h"
+
+#include <math.h>
+#include <string.h>
 
 void pid_init(struct pid *self)
 {
@@ -16,13 +16,26 @@ void pid_init(struct pid *self)
 }
 
 void pid_set_from_imc(struct pid *self, float aggr, float process_gain, float time_constant,
-		      float dead_time)
+		      float dead_time, enum pid_imc_mode mode)
 {
-	float tc = fmaxf((0.1 * aggr) * time_constant, (0.8 * aggr) * dead_time);
-	float kc =
-		(1.0 / process_gain) * ((time_constant + 0.5 * dead_time) / (tc + 0.5 * dead_time));
-	float ti = time_constant + 0.5 * dead_time;
-	float td = (time_constant * dead_time) / (2.0 * time_constant + dead_time);
+	float tc = 0;
+
+	switch (mode) {
+	case PID_IMC_AGGRESSIVE:
+		tc = fmaxf((0.1F * aggr) * time_constant, (0.8F * aggr) * dead_time);
+		break;
+	case PID_IMC_MODERATE:
+		tc = fmaxf((1.0F * aggr) * time_constant, (8.0F * aggr) * dead_time);
+		break;
+	case PID_IMC_CONSERVATIVE:
+		tc = fmaxf((10.0F * aggr) * time_constant, (80.0F * aggr) * dead_time);
+		break;
+	}
+
+	float kc = (1.0F / process_gain) *
+		   ((time_constant + 0.5F * dead_time) / (tc + 0.5F * dead_time));
+	float ti = time_constant + 0.5F * dead_time;
+	float td = (time_constant * dead_time) / (2.0F * time_constant + dead_time);
 
 	self->Kp = kc;
 	self->Ki = kc / ti;

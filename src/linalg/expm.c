@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <string.h>
-#include <control/linalg.h>
 
 /*
  * Find matrix exponential, return A as A = expm(A)
@@ -41,7 +42,7 @@ void expm(const float *const A, float *exp, uint16_t row)
 		// F = A*F/k (we are borrowing T)
 		mul(T, A, F, row, row, row, row);
 		for (uint16_t i = 0; i < row * row; i++) {
-			F[i] = T[i] / k;
+			F[i] = T[i] / (float)k;
 		}
 		// T = E + F - E ( This is faster than T = F)
 		for (uint16_t i = 0; i < row * row; i++) {

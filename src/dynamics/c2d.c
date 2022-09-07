@@ -7,11 +7,13 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
 #include "control/linalg.h"
 #include "control/dynamics.h"
 
-void c2d(float A[], float B[], uint8_t ADIM, uint8_t RDIM, float sampleTime)
+#include <string.h>
+
+void c2d(float *Ad, float *Bd, const float *const A, const float *const B, uint8_t ADIM,
+	 uint8_t RDIM, float sampleTime)
 {
 	float M[(ADIM + RDIM) * (ADIM + RDIM)];
 
@@ -28,14 +30,15 @@ void c2d(float A[], float B[], uint8_t ADIM, uint8_t RDIM, float sampleTime)
 		}
 	}
 	expm(M, M, ADIM + RDIM);
+	// copy back the matrices
 	for (uint8_t i = 0; i < ADIM; i++) {
 		// For A row
 		for (uint8_t j = 0; j < ADIM; j++) {
-			A[i * ADIM + j] = M[i * (ADIM + RDIM) + j];
+			Ad[i * ADIM + j] = M[i * (ADIM + RDIM) + j];
 		}
 		// For B row
 		for (uint8_t j = 0; j < RDIM; j++) {
-			B[i * RDIM + j] = M[i * (ADIM + RDIM) + j + ADIM];
+			Bd[i * RDIM + j] = M[i * (ADIM + RDIM) + j + ADIM];
 		}
 	}
 }

@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
+#include "control/linalg.h"
+
 #include <errno.h>
-#include <control/linalg.h>
+#include <string.h>
 
 /*
  * Create hankel matrix of vector V. Step is just the shift. Normaly set this to 0.

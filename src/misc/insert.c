@@ -8,6 +8,7 @@
  */
 
 #include "control/misc.h"
+
 #include <string.h>
 
 void insert(float *B, const float *const A, uint16_t row_a, uint16_t column_a, uint16_t column_b,

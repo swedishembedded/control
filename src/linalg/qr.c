@@ -7,11 +7,11 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
+#include <errno.h>
 #include <math.h>
 #include <string.h>
-#include <errno.h>
-
-#include <control/linalg.h>
 
 int qr(const float *const A, float *Q, float *R, uint16_t row_a, uint16_t column_a,
        bool only_compute_R)
