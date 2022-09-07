@@ -7,8 +7,9 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+
 #include <math.h>
-#include <control/linalg.h>
 
 /*
  * Balance a real matrix
@@ -19,32 +20,32 @@ void balance(float A[], uint16_t row)
 	uint16_t i, j, last = 0;
 	float s, r, g, f, c, sqrdx;
 
-	sqrdx = 4.0;
+	sqrdx = 4.0f;
 	while (last == 0) {
 		last = 1;
 		for (i = 0; i < row; i++) {
-			r = c = 0.0;
+			r = c = 0.0f;
 			for (j = 0; j < row; j++)
 				if (j != i) {
 					c += fabsf(*(A + row * j + i));
 					r += fabsf(*(A + row * i + j));
 				}
 			if (c != 0.0 && r != 0.0) {
-				g = r / 2.0;
-				f = 1.0;
+				g = r / 2.0f;
+				f = 1.0f;
 				s = c + r;
 				while (c < g) {
-					f *= 2.0;
+					f *= 2.0f;
 					c *= sqrdx;
 				}
-				g = r * 2.0;
+				g = r * 2.0f;
 				while (c > g) {
-					f /= 2.0;
+					f /= 2.0f;
 					c /= sqrdx;
 				}
-				if ((c + r) / f < 0.95 * s) {
+				if ((c + r) / f < 0.95f * s) {
 					last = 0;
-					g = 1.0 / f;
+					g = 1.0f / f;
 					for (j = 0; j < row; j++)
 						*(A + row * i + j) *= g;
 					for (j = 0; j < row; j++)

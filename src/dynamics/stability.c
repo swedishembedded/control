@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <math.h>
 #include "control/linalg.h"
 #include "control/dynamics.h"
+
+#include <math.h>
 
 bool is_stable(const float *const A, uint8_t ADIM)
 {

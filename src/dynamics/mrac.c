@@ -8,12 +8,30 @@
  */
 
 #include "control/linalg.h"
-#include "control/misc.h"
 #include "control/dynamics.h"
+#include "control/misc.h"
 
-static void integral(float I[], float gain, float x[], float e[], uint8_t RDIM);
-static void modelerror(float e[], float y[], float r[], uint8_t RDIM);
-static void findinput(float u[], float r[], float I1[], float y[], float I2[], uint8_t RDIM);
+static void integral(float *I, float gain, const float *const x, const float *const e, uint8_t RDIM)
+{
+	for (uint8_t i = 0; i < RDIM; i++) {
+		I[i] += gain * x[i] * e[i];
+	}
+}
+
+static void modelerror(float *e, const float *const y, const float *const r, uint8_t RDIM)
+{
+	for (uint8_t i = 0; i < RDIM; i++) {
+		e[i] = y[i] - r[i];
+	}
+}
+
+static void findinput(float *u, const float *const r, const float *const I1, const float *const y,
+		      const float *const I2, uint8_t RDIM)
+{
+	for (uint8_t i = 0; i < RDIM; i++) {
+		u[i] = r[i] * I1[i] - y[i] * I2[i];
+	}
+}
 
 void mrac(float limit, float gain, float y[], float u[], float r[], float I1[], float I2[],
 	  uint8_t RDIM)
@@ -33,22 +51,4 @@ void mrac(float limit, float gain, float y[], float u[], float r[], float I1[], 
 
 	// Find input signal
 	findinput(u, r, I1, y, I2, RDIM);
-}
-
-static void integral(float I[], float gain, float x[], float e[], uint8_t RDIM)
-{
-	for (uint8_t i = 0; i < RDIM; i++)
-		I[i] += gain * x[i] * e[i];
-}
-
-static void modelerror(float e[], float y[], float r[], uint8_t RDIM)
-{
-	for (uint8_t i = 0; i < RDIM; i++)
-		e[i] = y[i] - r[i];
-}
-
-static void findinput(float u[], float r[], float I1[], float y[], float I2[], uint8_t RDIM)
-{
-	for (uint8_t i = 0; i < RDIM; i++)
-		u[i] = r[i] * I1[i] - y[i] * I2[i];
 }

@@ -7,32 +7,36 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <math.h>
-#include <float.h>
-#include <string.h>
+#include "control/linalg.h"
+
 #include <errno.h>
-#include <control/linalg.h>
+#include <float.h>
+#include <math.h>
+#include <string.h>
 
 static int solve(const float *const LU, float *x, float *b, uint8_t *P, uint16_t row)
 {
 	// forward substitution with pivoting
-	for (uint16_t i = 0; i < row; ++i) {
+	for (int i = 0; i < row; ++i) {
 		x[i] = b[P[i]];
 
-		for (uint16_t j = 0; j < i; ++j)
+		for (int j = 0; j < i; ++j) {
 			x[i] = x[i] - LU[row * P[i] + j] * x[j];
+		}
 	}
 
 	// backward substitution with pivoting
-	for (int16_t i = row - 1; i >= 0; --i) {
-		for (int16_t j = i + 1; j < row; ++j)
+	for (int i = row - 1; i >= 0; --i) {
+		for (int j = i + 1; j < row; ++j) {
 			x[i] = x[i] - LU[row * P[i] + j] * x[j];
+		}
 
 		// Just in case if we divide with zero
-		if (fabsf(LU[row * P[i] + i]) > FLT_EPSILON)
+		if (fabsf(LU[row * P[i] + i]) > FLT_EPSILON) {
 			x[i] = x[i] / LU[row * P[i] + i];
-		else
+		} else {
 			return -ENOTSUP;
+		}
 	}
 
 	return 0;
@@ -57,8 +61,9 @@ int inv(float *Ai_out, const float *const A, uint16_t row)
 	// Create the inverse
 	for (uint16_t i = 0; i < row; i++) {
 		tmpvec[i] = 1.0f;
-		if (solve(LU, &Ai[row * i], tmpvec, P, row) != 0)
+		if (solve(LU, &Ai[row * i], tmpvec, P, row) != 0) {
 			return -ENOTSUP; // We divided with zero
+		}
 		tmpvec[i] = 0.0f;
 	}
 

@@ -1,22 +1,12 @@
 ---
-Checks:    "bugprone-*,\
-            cert-*,\
-            clang-analyzer-*,\
-            google-*,\
-            llvm-*,\
-            misc-*,\
-            modernize-*,\
-            performance-*,\
-            readability-*,\
-            -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,\
-            -google-readability-braces-around-statements,\
-            -google-readability-todo,\
-            -llvm-header-guard,\
-            -modernize-use-trailing-return-type,\
-            -readability-misleading-indentation"
+Checks:    'bugprone-*,cert-*,clang-analyzer-*,google-*,llvm-*,misc-*,modernize-*,performance-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-google-readability-braces-around-statements,-google-readability-todo,-llvm-header-guard,-modernize-use-trailing-return-type,-readability-misleading-indentation,-cert-msc30*,-cert-msc51*,-cert-msc32*,-cert-msc50*'
 WarningsAsErrors:   '*'
 AnalyzeTemporaryDtors: false
 CheckOptions:
+  - key:             cert-msc32-c.DisallowedSeedTypes
+    value:           ''
+  - key:             cert-msc51-cpp.DisallowedSeedTypes
+    value:           ''
   - key:             performance-move-const-arg.CheckTriviallyCopyableMove
     value:           0
   - key:             readability-identifier-naming.ClassCase
@@ -24,9 +14,9 @@ CheckOptions:
   - key:             readability-identifier-naming.ClassConstantCase
     value:           CamelCase
   - key:             readability-identifier-naming.ClassConstantPrefix
-    value:           'k'
+    value:           ''
   - key:             readability-identifier-naming.EnumCase
-    value:           CamelCase
+    value:           lower_case
   - key:             readability-identifier-naming.EnumConstantCase
     value:           UPPER_CASE
   - key:             readability-identifier-naming.FunctionCase
@@ -34,7 +24,7 @@ CheckOptions:
   - key:             readability-identifier-naming.GlobalConstantCase
     value:           UPPER_CASE
   - key:             readability-identifier-naming.GlobalConstantPrefix
-    value:           'G_'
+    value:           ''
   - key:             readability-identifier-naming.MemberCase
     value:           lower_case
   - key:             readability-identifier-naming.NamespaceCase
@@ -46,9 +36,5 @@ CheckOptions:
   - key:             readability-identifier-naming.ProtectedMemberSuffix
     value:           '_'
   - key:             readability-identifier-naming.MethodCase
-    value:           camelBack
-  - key:             readability-identifier-naming.ParameterCase
-    value:           lower_case
-  - key:             readability-identifier-naming.VariableCase
     value:           lower_case
 ...

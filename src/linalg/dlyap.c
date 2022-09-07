@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/linalg.h"
+#include "control/misc.h"
+
 #include <string.h>
-#include <control/misc.h>
-#include <control/linalg.h>
 
 /*
  * Discrete Lyapunov equation

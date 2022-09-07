@@ -7,9 +7,11 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
+#include "control/linalg.h"
+
+#include <float.h>
 #include <math.h>
-#include <control/linalg.h>
+#include <string.h>
 
 // Private functions
 static void tqli(float *d, float *e, uint16_t row, float *z);
@@ -38,13 +40,14 @@ static void tridiag(float *a, uint16_t row, float *d, float *e)
 
 	for (i = row - 1; i > 0; i--) {
 		l = i - 1;
-		h = scale = 0.0;
+		h = scale = 0.0f;
 		if (l > 0) {
-			for (k = 0; k < l + 1; k++)
+			for (k = 0; k < l + 1; k++) {
 				scale += fabsf(*(a + row * i + k)); //fabs(a[i][k]);
-			if (scale == 0.0)
+			}
+			if (scale == 0.0) {
 				*(e + i) = *(a + row * i + l); //a[i][l];
-			else {
+			} else {
 				for (k = 0; k < l + 1; k++) {
 					*(a + row * i + k) /= scale; //a[i][k] /= scale;
 					h += *(a + row * i + k) *
@@ -55,12 +58,12 @@ static void tridiag(float *a, uint16_t row, float *d, float *e)
 				*(e + i) = scale * g;
 				h -= f * g;
 				*(a + row * i + l) = f - g; // a[i][l]
-				f = 0.0;
+				f = 0.0f;
 				for (j = 0; j < l + 1; j++) {
 					/* Next statement can be omitted if eigenvectors not wanted */
 					*(a + row * j + i) =
 						*(a + row * i + j) / h; //a[j][i] = a[i][j] / h;
-					g = 0.0;
+					g = 0.0f;
 					for (k = 0; k < j + 1; k++)
 						g += *(a + row * j + k) *
 						     *(a + row * i + k); //a[j][k] * a[i][k];
@@ -76,38 +79,44 @@ static void tridiag(float *a, uint16_t row, float *d, float *e)
 					//a[i][j];
 					f = *(a + row * i + j);
 					*(e + j) = g = *(e + j) - hh * f;
-					for (k = 0; k < j + 1; k++)
+					for (k = 0; k < j + 1; k++) {
 						*(a + row * j + k) -=
-							(f * e[k] +
-							 g * *(a + row * i +
-							       k)); //a[j][k] -= (f * e[k] + g * a[i][k]);
+							(f * e[k] + g * *(a + row * i + k));
+					}
 				}
 			}
-		} else
-			*(e + i) = *(a + row * i + l); //a[i][l];
+		} else {
+			*(e + i) = *(a + row * i + l);
+		}
 		*(d + i) = h;
 	}
 	/* Next statement can be omitted if eigenvectors not wanted */
-	*(d + 0) = 0.0;
-	*(e + 0) = 0.0;
+	*(d + 0) = 0.0f;
+	*(e + 0) = 0.0f;
 	/* Contents of this loop can be omitted if eigenvectors not wanted except for statement d[i]=a[i][i]; */
 	for (i = 0; i < row; i++) {
 		l = i;
-		if (*(d + i) != 0.0) {
+		if (fabsf(*(d + i)) > FLT_EPSILON) {
 			for (j = 0; j < l; j++) {
-				g = 0.0;
-				for (k = 0; k < l; k++)
-					g += *(a + row * i + k) *
-					     *(a + row * k + j); //a[i][k] * a[k][j];
-				for (k = 0; k < l; k++)
-					*(a + row * k + j) -=
-						g * *(a + row * k + i); //a[k][j] -= g * a[k][i];
+				g = 0.0f;
+				for (k = 0; k < l; k++) {
+					//a[i][k] * a[k][j];
+					g += *(a + row * i + k) * *(a + row * k + j);
+				}
+				for (k = 0; k < l; k++) {
+					//a[k][j] -= g * a[k][i];
+					*(a + row * k + j) -= g * *(a + row * k + i);
+				}
 			}
 		}
-		*(d + i) = *(a + row * i + i); //a[i][i];
-		*(a + row * i + i) = 1.0; //a[i][i] = 1.0;
-		for (j = 0; j < l; j++)
-			*(a + row * j + i) = *(a + row * i + j) = 0.0; //a[j][i] = a[i][j] = 0.0;
+		//a[i][i];
+		*(d + i) = *(a + row * i + i);
+		//a[i][i] = 1.0;
+		*(a + row * i + i) = 1.0f;
+		for (j = 0; j < l; j++) {
+			//a[j][i] = a[i][j] = 0.0;
+			*(a + row * j + i) = *(a + row * i + j) = 0.0f;
+		}
 	}
 }
 
@@ -117,9 +126,9 @@ static float pythag_float(float a, float b)
 	float absb = fabsf(b);
 
 	if (absa > absb)
-		return absa * sqrtf(1.0 + square(absb / absa));
+		return absa * sqrtf(1.0f + square(absb / absa));
 	else
-		return (absb == 0.0 ? 0.0 : absb * sqrtf(1.0 + square(absa / absb)));
+		return (absb < FLT_EPSILON ? 0.0f : absb * sqrtf(1.0f + square(absa / absb)));
 }
 
 static void tqli(float *d, float *e, uint16_t row, float *z)
@@ -129,7 +138,7 @@ static void tqli(float *d, float *e, uint16_t row, float *z)
 
 	for (i = 1; i < row; i++)
 		*(e + i - 1) = *(e + i);
-	e[row - 1] = 0.0;
+	e[row - 1] = 0.0f;
 	for (l = 0; l < row; l++) {
 		iter = 0;
 		do {
@@ -143,24 +152,24 @@ static void tqli(float *d, float *e, uint16_t row, float *z)
 					//fprintf(stderr, "[tqli] Too many iterations in tqli.\n");
 					break;
 				}
-				g = (*(d + l + 1) - *(d + l)) / (2.0 * *(e + l));
-				r = pythag_float(g, 1.0);
+				g = (*(d + l + 1) - *(d + l)) / (2.0f * *(e + l));
+				r = pythag_float(g, 1.0f);
 				g = *(d + m) - *(d + l) + *(e + l) / (g + abs_sign(r, g));
-				s = c = 1.0;
-				p = 0.0;
+				s = c = 1.0f;
+				p = 0.0f;
 				for (i = m - 1; i >= l; i--) {
 					f = s * *(e + i);
 					b = c * *(e + i);
 					e[i + 1] = (r = pythag_float(f, g));
-					if (r == 0.0) {
+					if (fabsf(r) < FLT_EPSILON) {
 						*(d + i + 1) -= p;
-						*(e + m) = 0.0;
+						*(e + m) = 0.0f;
 						break;
 					}
 					s = f / r;
 					c = g / r;
 					g = *(d + i + 1) - p;
-					r = (*(d + i) - g) * s + 2.0 * c * b;
+					r = (*(d + i) - g) * s + 2.0f * c * b;
 					*(d + i + 1) = g + (p = s * r);
 					g = c * r - b;
 					/* Next loop can be omitted if eigenvectors not wanted */
@@ -174,11 +183,11 @@ static void tqli(float *d, float *e, uint16_t row, float *z)
 							s * f; //z[k][i] = c * z[k][i] - s * f;
 					}
 				}
-				if (r == 0.0 && i >= l)
+				if (r == 0.0f && i >= l)
 					continue;
 				*(d + l) -= p;
 				*(e + l) = g;
-				*(e + m) = 0.0;
+				*(e + m) = 0.0f;
 			}
 		} while (m != l);
 	}

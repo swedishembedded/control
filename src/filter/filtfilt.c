@@ -7,9 +7,10 @@
  * Training: https://swedishembedded.com/training
  */
 
+#include "control/filter.h"
+
 #include <stdint.h>
 #include <string.h>
-#include "control/filter.h"
 
 // Euler method for simple ODE - Low pass filter
 static void simulation(float K, float *y, const float *const t, uint16_t l)

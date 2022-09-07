@@ -7,97 +7,12 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
+#include "control/filter.h"
+#include "control/linalg.h"
+
+#include <errno.h>
 #include <math.h>
-
-#include <control/linalg.h>
-#include <control/filter.h>
-
-static void create_weights(float Wc[], float Wm[], float alpha, float beta, float kappa, uint8_t L);
-static void create_sigma_point_matrix(float X[], float x[], float S[], float alpha, float kappa,
-				      uint8_t L);
-static void compute_transistion_function(float Xstar[], float X[], float u[],
-					 void (*F)(float[], float[], float[]), uint8_t L);
-static void multiply_sigma_point_matrix_to_weights(float x[], float X[], float W[], uint8_t L);
-static void create_state_estimation_error_covariance_matrix(float S[], float W[], float X[],
-							    float x[], float R[], uint8_t L);
-static void H(float Y[], float X[], uint8_t L);
-static void create_state_cross_covariance_matrix(float P[], float W[], float X[], float Y[],
-						 float x[], float y[], uint8_t L);
-static void update_state_covarariance_matrix_and_state_estimation_vector(float S[], float xhat[],
-									 float yhat[], float y[],
-									 float Sy[], float Pxy[],
-									 uint8_t L);
-
-/*
- * Square Root Unscented Kalman Filter For State Estimation (A better version than regular UKF)
- * L = Number of states, or sensors in practice.
- * beta = used to incorporate prior knowledge of the distribution of x (for Gaussian distributions, beta = 2 is optimal)
- * alpha = determines the spread of the sigma points around xhat and alpha is usually set to 0.01 <= alpha <= 1
- * S[L * L] = State estimate error covariance
- * F(float dx[L], float x[L], float u[L]) = Transition function
- * x[L] = State vector
- * u[L] = Input signal
- * Rv[L * L] = Process noise covariance matrix
- * Rn[L * L] = Measurement noise covariance matrix
- * xhat[L] = Estimated state (our input)
- * y[L] = Measurement state (our output)
- */
-void sqr_ukf(float y[], float xhat[], float Rn[], float Rv[], float u[],
-	     void (*F)(float[], float[], float[]), float S[], float alpha, float beta, uint8_t L)
-{
-	/* Create the size N */
-	uint8_t N = 2 * L + 1;
-
-	/* Predict: Create the weights */
-	float Wc[N];
-	float Wm[N];
-	float kappa = 0.0f; /* kappa is 0 for state estimation */
-
-	create_weights(Wc, Wm, alpha, beta, kappa, L);
-
-	/* Predict: Create sigma point matrix for F function  */
-	float X[L * N];
-
-	create_sigma_point_matrix(X, xhat, S, alpha, kappa, L);
-
-	/* Predict: Compute the transition function F */
-	float Xstar[L * N];
-
-	compute_transistion_function(Xstar, X, u, F, L);
-
-	/* Predict: Multiply sigma points to weights for xhat */
-	multiply_sigma_point_matrix_to_weights(xhat, Xstar, Wm, L);
-
-	/* Predict: Create state estimate error covariance  */
-	create_state_estimation_error_covariance_matrix(S, Wc, Xstar, xhat, Rv, L);
-
-	/* Predict: Create sigma point matrix for H function. This is the updated version of SR-UKF paper. The old SR-UKF paper don't have this */
-	create_sigma_point_matrix(X, xhat, S, alpha, kappa, L);
-
-	/* Predict: Compute the observability function H */
-	float Y[L * N];
-
-	H(Y, X, L);
-
-	/* Predict: Multiply sigma points to weights for yhat */
-	float yhat[L];
-
-	multiply_sigma_point_matrix_to_weights(yhat, Y, Wm, L);
-
-	/* Update: Create measurement covariance matrix */
-	float Sy[L * L];
-
-	create_state_estimation_error_covariance_matrix(Sy, Wc, Y, yhat, Rn, L);
-
-	/* Update: Create state covariance matrix */
-	float Pxy[L * L];
-
-	create_state_cross_covariance_matrix(Pxy, Wc, X, Y, xhat, yhat, L);
-
-	/* Update: Perform state update and covariance update */
-	update_state_covarariance_matrix_and_state_estimation_vector(S, xhat, yhat, y, Sy, Pxy, L);
-}
+#include <string.h>
 
 static void create_weights(float Wc[], float Wm[], float alpha, float beta, float kappa, uint8_t L)
 {
@@ -105,15 +20,15 @@ static void create_weights(float Wc[], float Wm[], float alpha, float beta, floa
 	uint8_t N = 2 * L + 1;
 
 	/* Compute lambda and gamma parameters */
-	float lambda = alpha * alpha * (L + kappa) - L;
+	float lambda = alpha * alpha * ((float)L + kappa) - (float)L;
 
 	/* Insert at first index */
-	Wm[0] = lambda / (L + lambda);
+	Wm[0] = lambda / ((float)L + lambda);
 	Wc[0] = Wm[0] + 1 - alpha * alpha + beta;
 
 	/* The rest of the indexes are the same */
 	for (uint8_t i = 1; i < N; i++) {
-		Wc[i] = 0.5f / (L + lambda);
+		Wc[i] = 0.5f / ((float)L + lambda);
 		Wm[i] = Wc[i];
 	}
 }
@@ -126,8 +41,8 @@ static void create_sigma_point_matrix(float X[], float x[], float S[], float alp
 	uint8_t K = L + 1;
 
 	/* Compute lambda and gamma parameters */
-	float lambda = alpha * alpha * (L + kappa) - L;
-	float gamma = sqrtf(L + lambda);
+	float lambda = alpha * alpha * ((float)L + kappa) - (float)L;
+	float gamma = sqrtf((float)L + lambda);
 
 	/* Insert first column in X */
 	for (uint8_t i = 0; i < L; i++)
@@ -169,6 +84,13 @@ static void compute_transistion_function(float Xstar[], float X[], float u[],
 	}
 }
 
+/**
+ * \brief Multiply x = W * X
+ * \param x Vector [L * 1]
+ * \param X Matrix [L * N];
+ * \param W Weights vector [(2 * L + 1) * 1]
+ * \param L Size
+ **/
 static void multiply_sigma_point_matrix_to_weights(float x[], float X[], float W[], uint8_t L)
 {
 	/* Create the size N */
@@ -178,9 +100,11 @@ static void multiply_sigma_point_matrix_to_weights(float x[], float X[], float W
 	memset(x, 0, L * sizeof(float));
 
 	/* Multiply x = W*X */
-	for (uint8_t j = 0; j < N; j++)
-		for (uint8_t i = 0; i < L; i++)
+	for (uint8_t j = 0; j < N; j++) {
+		for (uint8_t i = 0; i < L; i++) {
 			x[i] += W[j] * X[i * N + j];
+		}
+	}
 }
 
 static void create_state_estimation_error_covariance_matrix(float S[], float W[], float X[],
@@ -318,4 +242,73 @@ static void update_state_covarariance_matrix_and_state_estimation_vector(float S
 			Uk[i] = U[i * L + j];
 		cholupdate(S, Uk, L, false);
 	}
+}
+
+int sqr_ukf(float y[], float xhat[], float Rn[], float Rv[], float u[],
+	    void (*F)(float[], float[], float[]), float S[], float alpha, float beta, uint8_t L)
+{
+	if (L == 0) {
+		// L can not be zero
+		return -EINVAL;
+	}
+
+	/* Create the size N */
+	uint8_t N = 2 * L + 1;
+
+	/* Predict: Create the weights */
+	float Wc[N];
+	float Wm[N];
+	float kappa = 0.0f; /* kappa is 0 for state estimation */
+
+	memset(Wc, 0, sizeof(float) * N);
+	memset(Wm, 0, sizeof(float) * N);
+
+	create_weights(Wc, Wm, alpha, beta, kappa, L);
+
+	/* Predict: Create sigma point matrix for F function  */
+	float X[L * N];
+
+	create_sigma_point_matrix(X, xhat, S, alpha, kappa, L);
+
+	/* Predict: Compute the transition function F */
+	float Xstar[L * N];
+
+	compute_transistion_function(Xstar, X, u, F, L);
+
+	/* Predict: Multiply sigma points to weights for xhat */
+	multiply_sigma_point_matrix_to_weights(xhat, Xstar, Wm, L);
+
+	/* Predict: Create state estimate error covariance  */
+	create_state_estimation_error_covariance_matrix(S, Wc, Xstar, xhat, Rv, L);
+
+	/*
+	 * Predict: Create sigma point matrix for H function. This is the updated
+	 * version of SR-UKF paper. The old SR-UKF paper don't have this
+	 */
+	create_sigma_point_matrix(X, xhat, S, alpha, kappa, L);
+
+	/* Predict: Compute the observability function H */
+	float Y[L * N];
+
+	H(Y, X, L);
+
+	/* Predict: Multiply sigma points to weights for yhat */
+	float yhat[L];
+
+	multiply_sigma_point_matrix_to_weights(yhat, Y, Wm, L);
+
+	/* Update: Create measurement covariance matrix */
+	float Sy[L * L];
+
+	create_state_estimation_error_covariance_matrix(Sy, Wc, Y, yhat, Rn, L);
+
+	/* Update: Create state covariance matrix */
+	float Pxy[L * L];
+
+	create_state_cross_covariance_matrix(Pxy, Wc, X, Y, xhat, yhat, L);
+
+	/* Update: Perform state update and covariance update */
+	update_state_covarariance_matrix_and_state_estimation_vector(S, xhat, yhat, y, Sy, Pxy, L);
+
+	return 0;
 }

@@ -7,10 +7,11 @@
  * Training: https://swedishembedded.com/training
  */
 
-#include <string.h>
-#include <math.h>
+#include "control/linalg.h"
+
 #include <float.h>
-#include <control/linalg.h>
+#include <math.h>
+#include <string.h>
 
 /*
  * Create A = L*L^T
@@ -36,6 +37,6 @@ void chol(const float *const A, float *L, uint16_t row)
 				L[row * j + j] = FLT_EPSILON; // Same as eps command in MATLAB
 			}
 			L[row * i + j] = (i == j) ? sqrtf(A[row * i + i] - s) :
-						    (1.0 / L[row * j + j] * (A[row * i + j] - s));
+						    (1.0f / L[row * j + j] * (A[row * i + j] - s));
 		}
 }
