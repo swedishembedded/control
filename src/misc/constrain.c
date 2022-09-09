@@ -13,11 +13,13 @@ float constrain_float(float input, float lower_limit, float upper_limit)
 {
 	if (input > upper_limit) {
 		return upper_limit;
-	} else if (input < lower_limit) {
-		return lower_limit;
-	} else {
-		return input; // No action
 	}
+
+	if (input < lower_limit) {
+		return lower_limit;
+	}
+	// unchanged
+	return input;
 }
 
 void constrain(float *I, const float *const Iin, uint16_t dim, float lower, float upper)

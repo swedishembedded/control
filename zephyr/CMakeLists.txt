@@ -4,6 +4,8 @@
 if(CONFIG_CONTROL)
 
   zephyr_include_directories(../include)
+  # Make sure M_PI is available
+  zephyr_compile_options("-D__XSI_VISIBLE")
 
   zephyr_library()
   zephyr_library_sources_ifdef(CONFIG_CONTROL ../src/optimization/linprog.c)
