@@ -5,10 +5,10 @@
  * Training: https://swedishembedded.com/tag/training
  **/
 
+#undef __STRICT_ANSI__
+
 #include "control/linalg.h"
 #include "control/model/dc_motor.h"
-
-#undef __STRICT_ANSI__
 
 #include <math.h>
 #include <string.h>

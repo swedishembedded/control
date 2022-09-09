@@ -125,10 +125,10 @@ static float pythag_float(float a, float b)
 	float absa = fabsf(a);
 	float absb = fabsf(b);
 
-	if (absa > absb)
+	if (absa > absb) {
 		return absa * sqrtf(1.0f + square(absb / absa));
-	else
-		return (absb < FLT_EPSILON ? 0.0f : absb * sqrtf(1.0f + square(absa / absb)));
+	}
+	return (absb < FLT_EPSILON ? 0.0f : absb * sqrtf(1.0f + square(absa / absb)));
 }
 
 static void tqli(float *d, float *e, uint16_t row, float *z)

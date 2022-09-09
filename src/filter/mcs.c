@@ -25,7 +25,7 @@ void mcs_collect(float P[], uint16_t column_p, float x[], uint8_t row_x, float i
 
 	for (uint8_t i = 0; i < row_x; i++) {
 		// Compute index
-		index = fabsf(x[i]) * index_factor; // E.g 45 = 78.23 * 0.57
+		index = (uint16_t)(fabsf(x[i]) * index_factor); // E.g 45 = 78.23 * 0.57
 		if (index >= column_p) {
 			continue;
 		}
@@ -63,7 +63,7 @@ void mcs_estimate(float P[], uint16_t column_p, float x[], uint8_t row_x)
 		column_index = (i + i) * column_p;
 		column_value = (i + i + 1) * column_p;
 		for (uint16_t j = 0; j < column_p; j++) {
-			uint16_t value = P[column_index + j];
+			uint16_t value = (uint16_t)P[column_index + j];
 
 			if (value > max_value_index) {
 				index_of_value = j;

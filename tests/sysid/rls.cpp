@@ -10,10 +10,15 @@
 #include <gtest/gtest.h>
 
 extern "C" {
+#include "control/linalg.h"
 #include "control/sysid.h"
 #include "control/misc.h"
 #include "control/dynamics.h"
 };
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#endif
 
 TEST(Main, RLS)
 {
@@ -56,16 +61,21 @@ TEST(Main, RLS)
 	};
 
 	// Estimation SISO model - Assume that this this is inside the microprocessor's while(1) loop
-	float past_e; // The past e
-	float past_y; // The past y
-	float past_u; // The past u
+	float past_e = 0.0f; // The past e
+	float past_y = 0.0f; // The past y
+	float past_u = 0.0f; // The past u
 	float phi[NP + NZ + NZE];
 	float P[(NP + NZ + NZE) * (NP + NZ + NZE)];
-	float theta[NP + NZ +
-		    NZE]; // Remember that total length is POLY_LENGTH*3 - ALWAYS have these dimensions
-	uint8_t count =
-		0; // Initial set to 0. Will be counted to 2 then stop. Set count = 0 again and the algorithm starts over
-	for (uint8_t i = 0; i < sizeof(output) / sizeof(output[0]); i++) {
+	// Remember that total length is POLY_LENGTH*3 - ALWAYS have these dimensions
+	float theta[NP + NZ + NZE];
+	// Initial set to 0. Will be counted to 2 then stop. Set count = 0 again and the algorithm starts over
+	uint8_t count = 0;
+
+	memset(phi, 0, sizeof(phi));
+	memset(P, 0, sizeof(P));
+	memset(theta, 0, sizeof(theta));
+
+	for (unsigned int i = 0; i < ARRAY_SIZE(output); i++) {
 		rls(NP, NZ, NZE, theta, input[i], output[i], &count, &past_e, &past_y, &past_u, phi,
 		    P, Pq, forgetting);
 	}
@@ -76,7 +86,8 @@ TEST(Main, RLS)
 	float C[YDIM * NP];
 	float K[NP * YDIM];
 	bool integral_action = false;
-	theta2ss(A, B, C, theta, K, ADIM, NP, NZ, NZE, integral_action);
+
+	theta2ss(A, B, C, K, theta, ADIM, NP, NZ, NZE, integral_action);
 
 	// Print our state space matrix
 	printf("System matrix: A\n");
@@ -90,6 +101,25 @@ TEST(Main, RLS)
 
 	printf("Kalman gain matrix: K\n");
 	print(K, NP, YDIM);
+
+	// verify results against initial data
+	float x[ADIM];
+	float y[YDIM];
+	float u[RDIM];
+
+	memset(x, 0, sizeof(x));
+	memset(y, 0, sizeof(y));
+	memset(u, 0, sizeof(u));
+
+	memset(K, 0, sizeof(K));
+	for (unsigned i = 0; i < ARRAY_SIZE(output); i++) {
+		u[0] = input[i];
+		// we expect the identified model to be within 1/100 of the original data
+		EXPECT_NEAR(y[0], output[i], 1e-2);
+		// simulate the identified model
+		kalman(x, A, x, B, u, K, y, C, ADIM, YDIM, RDIM);
+		mul(y, C, x, YDIM, ADIM, ADIM, 1);
+	}
 }
 
 /* Octave code:
