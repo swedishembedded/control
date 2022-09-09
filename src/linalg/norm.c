@@ -44,7 +44,8 @@ float norm(const float *const Ain, uint16_t row, uint16_t column, uint8_t l)
 			}
 		}
 		return maxValue;
-	} else if (l == 2) {
+	}
+	if (l == 2) {
 		// Vector
 		if (row == 1) {
 			float sqrt_sum = 0;

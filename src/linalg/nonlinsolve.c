@@ -82,7 +82,7 @@ void nonlinsolve(void (*nonlinear_equation_system)(float[], float[], float[]), f
 		}
 
 		// Save the last for next time.
-		past_gradients[gradient_index] = alpha * norm(dx, 1, elements, 2);
+		past_gradients[gradient_index] = (uint8_t)(alpha * norm(dx, 1, elements, 2));
 
 		gradient_index++;
 		if (gradient_index >= maximum_gradients_index) {
