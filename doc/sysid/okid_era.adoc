@@ -4,4 +4,4 @@
 // Simulation: https://swedishembedded.com/simulation
 // Training: https://swedishembedded.com/tag/training
 
-${insert("era")}
+${insert("okid_era")}

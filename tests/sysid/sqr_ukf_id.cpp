@@ -87,4 +87,8 @@ TEST(Main, SQRUKFID)
 
 	printf("Error: \n");
 	print(E, 100, 3);
+
+	EXPECT_NEAR(E[99 * 3 + 0], 0, 0.4);
+	EXPECT_NEAR(E[99 * 3 + 1], 0, 1e-3);
+	EXPECT_NEAR(E[99 * 3 + 2], 0, 1e-3);
 }

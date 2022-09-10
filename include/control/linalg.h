@@ -246,6 +246,32 @@ void linsolve_qr(const float *const A, float *x, const float *const b, uint16_t 
  * \param row Number of tows and columns
  **/
 void linsolve_lower_triangular(const float *const A, float *x, const float *const b, uint16_t row);
+
+/**
+ * \brief Solve for markov parameters from output y and input u
+ * \details
+ * This is just a simple linear solve Ax = b where A is lower toeplitz
+ * triangular shape and x is a vector of g.
+ * So the formula is u * g = y, and we want to solve g = y/u
+ * u is a vector, but it's interpreted as lower triangular A:
+ * [u0  0  0  0  0 0 0]  [g0] [y0]
+ * [u1 u0 0 0 0 0 0]     [g1] [y1]
+ * [u2 u1 u0 0 0 0 0]    [g2] [y2]
+ * [u3 u2 u1 u0 0 0 0]   [g3] [y3]
+ * [u4 u3 u2 u1 u0 0 0]  [g4] [y4]
+ * [u5 u4 u3 u2 u1 u0 0] [g5] [y5]
+ * [.. u5 u4 u3 u2 u1 u0][g6] [y6]
+ * [un .. .. .. .. .. ..][gn] [yn]
+ *
+ * Where g0 = y0/u0 and g1 = (y1 - u1*g0)/u0 etc..
+ * \param g Markov parameters [m * n]
+ * \param y Measurement signal [m * n]
+ * \param u Input signal [m * n]
+ * \param m Number of rows
+ * \param n Number of columns
+ **/
+void linsolve_markov(float *g, const float *const y, const float *const u, uint16_t m, uint16_t n);
+
 /**
  * \brief Do LU-decomposition with partial pivoting
  * \details

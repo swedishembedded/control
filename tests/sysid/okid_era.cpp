@@ -6,17 +6,28 @@
  * Training: https://swedishembedded.com/tag/training
  */
 
-#include <stdio.h>
 #include <gtest/gtest.h>
+#include <math.h>
+#include <stdio.h>
 
 extern "C" {
 #include "control/sysid.h"
+#include "control/dynamics.h"
+#include "control/linalg.h"
 #include "control/misc.h"
 };
 
+#define ADIM 2
+#define YDIM 2
+#define RDIM 2
+#define N_SAMPLES 200
+
 TEST(Main, ERA)
 {
-	float y[2 * 200] = {
+	// y and u are a sample signal
+	// We don't use these below. But you can experiment with them.
+#if 0
+	float y[YDIM * N_SAMPLES] = {
 		// This is the first signal
 		0.00000, 0.54317, 1.13607, 1.74498, 2.34910, 2.93597, 3.49846, 4.03284, 4.53752,
 		5.01223, 5.45753, 5.87447, 6.26433, 6.62856, 6.96862, 7.28597, 7.58206, 7.85824,
@@ -69,8 +80,8 @@ TEST(Main, ERA)
 		-1.39369, -1.38272, -1.37181, -1.36095, -1.35014, -1.33938, -1.32866, -1.31799,
 		-1.30736, -1.29676, -1.28619, -1.27566, -1.26515, -1.25468, -1.24422
 	};
-
-	float u[2 * 200] = {
+#endif
+	float u[RDIM * N_SAMPLES] = {
 		// This is the first signal
 		5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000,
 		5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000, 5.0000,
@@ -117,17 +128,140 @@ TEST(Main, ERA)
 		2.2020, 2.1818, 2.1616, 2.1414, 2.1212, 2.1010, 2.0808, 2.0606, 2.0404, 2.0202,
 		2.0000
 	};
+	// these will hold impulse response we will use for era
+	float y_impulse[YDIM * N_SAMPLES];
+	float u_impulse[RDIM * N_SAMPLES];
+
+	float x_sim[ADIM];
+	float y_sim[YDIM];
+	float u_sim[RDIM];
+
+	float x_plant[ADIM];
+	float y_plant[YDIM];
+
+	float K[2 * YDIM];
+
+	memset(x_sim, 0, sizeof(x_sim));
+	memset(x_plant, 0, sizeof(x_plant));
+	memset(y_sim, 0, sizeof(y_sim));
+	memset(y_plant, 0, sizeof(y_plant));
+	memset(u_sim, 0, sizeof(u_sim));
+	memset(y_impulse, 0, sizeof(y_impulse));
+	memset(u_impulse, 0, sizeof(u_impulse));
+	memset(K, 0, sizeof(K));
+
+	// set first u for both channels to 1 (unit impulse)
+	u_impulse[0] = 1;
+	u_impulse[N_SAMPLES] = 1;
+
+	// Let's define a simple mass spring system
+	// (numbers don't matter - only that it is a mass spring system)
+	// clang-format off
+	float A_plant[2 * 2] = {
+		0.6f, 0.1f,
+		-0.4f, -0.08f
+	};
+	float B_plant[2 * 2] = {
+		0.8f, 0.13f,
+		-0.4f, 0.13f
+	};
+	float C_plant[2 * 2] = {
+		1.0f, 0.0f,
+		0.0f, 1.0f
+	};
+	// clang-format on
+
+	// generate measurement impulse reponse (this is what you would get from real
+	// system)
+	for (int c = 0; c < N_SAMPLES; c++) {
+		// grab an entry from input
+		u_sim[0] = u_impulse[c];
+		u_sim[1] = u_impulse[N_SAMPLES + c];
+		// run simulation (K is zero so we are just propagating here!)
+		kalman(x_sim, A_plant, x_sim, B_plant, u_sim, K, y_sim, C_plant, ADIM, YDIM, RDIM);
+		mul(y_sim, C_plant, x_sim, 2, 2, 2, 1);
+		// store an entry in output
+		y_impulse[c] = y_sim[0];
+		y_impulse[N_SAMPLES + c] = y_sim[1];
+	}
+
+	// These are matrices for the same system from matlab code!
+	// clang-format off
+	float A_exp[2 * 2] = {
+		0.979164, 0.063967,
+		-0.191900, 0.659332
+	};
+
+	float B_exp[2 * 2] = {
+		0.029218, 0.041683,
+		0.028075, 0.039511
+	};
+
+	float C_exp[2 * 2] = {
+		1, 0,
+		0, 1
+	};
+	// clang-format on
 
 	float A[2 * 2];
 	float B[2 * 2];
 	float C[2 * 2];
 
-	era(u, y, 2, 200, A, B, C, 2, 2); // State space model
+	// clear matrices (not strictly necessary)
+	memset(A, 0, sizeof(A));
+	memset(B, 0, sizeof(B));
+	memset(C, 0, sizeof(C));
 
-	printf("Matrix: B:\n");
-	print(B, 2, 2);
-	printf("Matrix: C:\n");
-	print(C, 2, 2);
-	printf("Matrix: A:\n");
+	// Attempt to reconstruct original system from measurements we collected
+	okid_era(A, B, C, 2, y_impulse, u_impulse, 2, N_SAMPLES);
+
+	// these matrices may appear to be different but pay attention to the C
+	// matrix!
+	printf("A: \n");
 	print(A, 2, 2);
+	printf("A_plant: \n");
+	print(A_plant, 2, 2);
+
+	printf("B: \n");
+	print(B, 2, 2);
+	printf("B_plant: \n");
+	print(B_plant, 2, 2);
+
+	printf("C: \n");
+	print(C, 2, 2);
+	printf("C_plant: \n");
+	print(C_plant, 2, 2);
+
+	// now we will simulate the system again with the new matrices and compare output to what we got previously
+
+	float err[2] = { 0, 0 };
+
+	memset(x_sim, 0, sizeof(x_sim));
+	for (unsigned i = 0; i < N_SAMPLES; i++) {
+		u_sim[0] = u[i];
+		u_sim[1] = u[N_SAMPLES + i];
+
+		// collect squared errors
+		err[0] += powf(y_sim[0] - y_plant[0], 2);
+		err[1] += powf(y_sim[1] - y_plant[1], 2);
+
+		printf("u %f %f, ", u_sim[0], u_sim[1]);
+		printf("y_plant: %f %f, ", y_plant[0], y_plant[1]);
+		printf("y_sim: %f %f, ", y_sim[0], y_sim[1]);
+		printf("y err: %f %f\n", y_sim[0] - y_plant[0], y_sim[1] - y_plant[1]);
+
+		// simulate plant model to get expected value
+		kalman(x_plant, A_plant, x_plant, B_plant, u_sim, K, y_plant, C_plant, ADIM, YDIM,
+		       RDIM);
+		mul(y_plant, C_plant, x_plant, 2, 2, 2, 1);
+
+		// simulate the identified model
+		kalman(x_sim, A, x_sim, B, u_sim, K, y_sim, C, ADIM, YDIM, RDIM);
+		mul(y_sim, C, x_sim, 2, 2, 2, 1);
+	}
+	// OKID is not very exact. Either there is something wrong with implementation
+	// or it is just inferior to other methods.
+	EXPECT_LE(err[0] / N_SAMPLES, 0.02f);
+	EXPECT_LE(err[1] / N_SAMPLES, 3.8f);
+	printf("MSE: %f %f\n", err[0] / N_SAMPLES, err[1] / N_SAMPLES);
 }

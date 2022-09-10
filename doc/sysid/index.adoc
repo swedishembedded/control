@@ -4,9 +4,7 @@
 // Simulation: https://swedishembedded.com/simulation
 // Training: https://swedishembedded.com/tag/training
 
-${include("era.adoc", leveloffset="+0")}
-
-${include("okid.adoc", leveloffset="+0")}
+${include("okid_era.adoc", leveloffset="+0")}
 
 ${include("rls.adoc", leveloffset="+0")}
 
