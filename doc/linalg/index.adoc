@@ -37,6 +37,8 @@ ${include("inv.adoc", leveloffset="+0")}
 
 ${include("linsolve_chol.adoc", leveloffset="+0")}
 
+${include("linsolve_markov.adoc", leveloffset="+0")}
+
 ${include("linsolve_gauss.adoc", leveloffset="+0")}
 
 ${include("linsolve_lower_triangular.adoc", leveloffset="+0")}

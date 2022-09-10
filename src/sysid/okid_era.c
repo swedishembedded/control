@@ -14,10 +14,10 @@
 #include <errno.h>
 #include <math.h>
 
-int era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B[], float C[],
-	uint8_t row_a, uint8_t inputs_outputs)
+int okid_era(float *A, float *B, float *C, uint8_t row_a, const float *const y,
+	     const float *const u, uint16_t io_row, uint16_t io_column)
 {
-	if ((row == 0) || (column == 0)) {
+	if ((io_row == 0) || (io_column == 0)) {
 		return -EINVAL;
 	}
 	if (row_a == 0) {
@@ -25,20 +25,22 @@ int era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B[
 	}
 
 	// Markov parameters - Impulse response
-	float g[row * column];
+	float g[io_row * io_column];
 
-	okid(u, y, g, row, column);
+	// g = y / u (done in matrix form)
+	linsolve_markov(g, y, u, io_row, io_column);
 
 	// Compute the correct dimensions for matrix H
-	const uint16_t row_h = row * (column / 2);
-	const uint16_t column_h = column / 2;
+	const uint16_t row_h = io_row * (io_column / 2);
+	const uint16_t column_h = io_column / 2;
 
 	float Temp[row_h * column_h]; // Temporary
 
 	// Create Half Hankel matrix
 	float H[row_h * column_h];
 
-	hankel(g, H, row, column, row_h, column_h, 1); // Need to have 1 shift for this algorithm
+	// Need to have 1 shift for this algorithm
+	hankel(g, H, io_row, io_column, row_h, column_h, 1);
 
 	// Do SVD on the half hankel matrix H
 	float U[row_h * column_h];
@@ -48,34 +50,36 @@ int era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B[
 	svd_golub_reinsch(H, row_h, column_h, U, S, V);
 
 	// Re-create another hankel with shift = 2
-	hankel(g, H, row, column, row_h, column_h, 2); // Need to have 2 shift for this algorithm
+	hankel(g, H, io_row, io_column, row_h, column_h,
+	       2); // Need to have 2 shift for this algorithm
 
 	// Create C and B matrix
-	for (uint8_t i = 0; i < row_a; i++) {
-		for (uint8_t j = 0; j < inputs_outputs; j++) {
-			C[j * row_a + i] = U[j * column_h + i] * sqrtf(S[i]); // C = U*S^(1/2)
+	for (int i = 0; i < row_a; i++) {
+		for (int j = 0; j < io_row; j++) {
+			// C = U*S^(1/2)
+			C[j * row_a + i] = U[j * column_h + i] * sqrtf(S[i]);
 		}
 
-		for (uint8_t j = 0; j < inputs_outputs; j++) {
-			B[i * inputs_outputs + j] =
-				sqrtf(S[i]) * V[j * column_h + i]; // B = S^(1/2)*V^T
+		for (int j = 0; j < io_row; j++) {
+			// B = S^(1/2)*V^T
+			B[i * io_row + j] = sqrtf(S[i]) * V[j * column_h + i];
 		}
 	}
 
 	// A = S^(-1/2)*U^T*H*V*S^(-1/2)
 
 	// V = V*S^(-1/2)
-	for (uint16_t i = 0; i < column_h; i++) {
-		for (uint16_t j = 0; j < column_h; j++) {
-			V[j * column_h + i] = V[j * column_h + i] * sqrtf(1 / S[i]);
+	for (int i = 0; i < column_h; i++) {
+		for (int j = 0; j < column_h; j++) {
+			V[j * column_h + i] *= sqrtf(1.0f / S[i]);
 		}
 	}
 
 	// U = S^(-1/2)*U^T
 	tran(U, U, row_h, column_h);
-	for (uint16_t i = 0; i < row_h; i++) {
-		for (uint16_t j = 0; j < column_h; j++) {
-			U[j * row_h + i] = sqrtf(1 / S[j]) * U[j * row_h + i];
+	for (int i = 0; i < row_h; i++) {
+		for (int j = 0; j < column_h; j++) {
+			U[j * row_h + i] *= sqrtf(1.0f / S[j]);
 		}
 	}
 

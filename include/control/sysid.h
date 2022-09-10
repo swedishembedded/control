@@ -34,37 +34,20 @@ int rls(unsigned int NP, unsigned int NZ, unsigned int NZE, float theta[], float
 	uint8_t *count, float *past_e, float *past_y, float *past_u, float phi[], float P[],
 	float Pq, float forgetting);
 /**
- * \brief Observer kalman filter identification.
- * \details
- * This is the basic version, e.g it won't give you the kalman gain K matrix.
- * If you need fully version, then look for MataveID at GitHub
- * First collect your inputs u and outputs y and create impulse response g,
- * called Markov parameters.  Then you must use era.c algorithm to convert
- * impulse response g into a linear state space model.  Data length need to be
- * the same as the column length n!
- * \param row Number of rows in input
- * \param column Number of columns in input
- * \param u [m*n]
- * \param y [m*n]
- * \param g [m*n] Markov parameters
- **/
-void okid(float u[], float y[], float g[], uint16_t row, uint16_t column);
-/**
  * \brief Eigensystem Realization Algorithm.
+ * \param A [ADIM*ADIM] // System matrix with dimension ADIM*ADIM
+ * \param B [ADIM*io_row] // Input matrix with dimension ADIM*inputs_outputs
+ * \param C [io_row*ADIM] // Output matrix with dimension inputs_outputs*ADMIN
  * \param u [m*n] // Input signal
  * \param y [m*n] // Output signal
- * \param row Rows in input signal
- * \param column Columns in input signal
+ * \param io_row Rows in input and output signal
+ * \param io_column Columns in input and output signal
  * \param row_a Rows in A
- * \param A [ADIM*ADIM] // System matrix with dimension ADIM*ADIM
- * \param B [ADIM*inputs_outputs] // Input matrix with dimension ADIM*inputs_outputs
- * \param C [inputs_outputs*ADIM] // Output matrix with dimension inputs_outputs*ADMIN
- * \param inputs_outputs number of inputs and outputs
  * \retval 0 Success
  * \retval -EINVAL Invalid parameters
  **/
-int era(float u[], float y[], uint16_t row, uint16_t column, float A[], float B[], float C[],
-	uint8_t row_a, uint8_t inputs_outputs);
+int okid_era(float *A, float *B, float *C, uint8_t row_a, const float *const y,
+	     const float *const u, uint16_t io_row, uint16_t io_column);
 /**
  * \brief Square Root Unscented Kalman Filter
  * \details For Parameter Estimation (A better version than regular UKF)
