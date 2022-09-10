@@ -5,7 +5,6 @@
 
 define_test(sysid)
 target_sources(sysid PRIVATE main.cpp)
-target_sources(sysid PRIVATE era.cpp)
-target_sources(sysid PRIVATE okid.cpp)
+target_sources(sysid PRIVATE okid_era.cpp)
 target_sources(sysid PRIVATE rls.cpp)
 target_sources(sysid PRIVATE sqr_ukf_id.cpp)

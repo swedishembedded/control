@@ -27,7 +27,7 @@ void linsolve_lower_triangular(const float *const A, float x[], const float *con
 		float sum = 0;
 
 		for (uint16_t j = 0; j < i; j++) {
-			sum = sum + A[row * i + j] * x[j];
+			sum += A[i * row + j] * x[j];
 		}
 
 		x[i] = (b[i] - sum) / A[row * i + i];
