@@ -53,6 +53,8 @@ ${include("misc/index.adoc", leveloffset="+1")}
 
 ${include("model/index.adoc", leveloffset="+1")}
 
+${include("motor/index.adoc", leveloffset="+1")}
+
 ${include("motion/index.adoc", leveloffset="+1")}
 
 ${include("optimization/index.adoc", leveloffset="+1")}

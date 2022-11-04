@@ -1,4 +1,4 @@
-image: swedishembedded/build:latest
+image: swedishembedded/build:v0.24.5
 
 default:
   tags:
@@ -9,7 +9,6 @@ stages:
 
 # This job builds applications
 build:
-    image: swedishembedded/build:latest
     stage: build
     artifacts:
         paths:
