@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2022 Martin Schröder <info@swedishembedded.com>
+# Consulting: https://swedishembedded.com/consulting
+# Training: https://swedishembedded.com/tag/training
+
 set(DOXYGEN_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/../include/)
 set(DOC_OUTPUT_FILE control.pdf)
 
