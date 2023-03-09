@@ -1,4 +1,4 @@
-image: swedishembedded/build:v0.24.5
+image: swedishembedded/build:v0.24.6
 
 default:
   tags:

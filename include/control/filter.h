@@ -35,7 +35,7 @@ void mcs_clean(float P[], uint16_t column_p, uint8_t row_x);
  *    is usually set to 0.01 <= alpha <= 1
  * \param S [L * L] State estimate error covariance
  * \param F F(float dx[L], float x[L], float u[L]) = Transition function
- * \param x [L] State vector
+ * \param xhat [L] State vector
  * \param u [L] Input signal
  * \param Rv [L * L] Process noise covariance matrix
  * \param Rn [L * L] Measurement noise covariance matrix
