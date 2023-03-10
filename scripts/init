@@ -5,4 +5,5 @@
 # Training: https://swedishembedded.com/tag/training
 
 apt-get update &&
-  apt-get install -qy libgtest-dev clang-tidy
+apt-get install -qy libgtest-dev clang-tidy
+pip3 install asciidoxy
