@@ -327,6 +327,7 @@ void linsolve_markov(float *g, const float *const y, const float *const u, uint1
  * \retval -ENOTSUP No decomposition exists for A
  **/
 int lup(const float *const A, float *LU, uint8_t *P, uint16_t row);
+
 /**
  * \brief Calculate determinant of a square matrix A
  * \param A Square matrix A
@@ -334,6 +335,7 @@ int lup(const float *const A, float *LU, uint8_t *P, uint16_t row);
  * \returns determinant of A
  **/
 float det(const float *const A, uint16_t row);
+
 /**
  * \brief Solves Ax=b with LUP-decomposition
  * \details
@@ -352,6 +354,7 @@ float det(const float *const A, uint16_t row);
  * \retval -ENOTSUP Decomposition not supported for this matrix
  **/
 int linsolve_lup(const float *const A, float *x, const float *const b, uint16_t row);
+
 /**
  * \brief Perform lower triangular Cholesky decomposition of matrix A
  * \details
@@ -360,7 +363,15 @@ int linsolve_lup(const float *const A, float *x, const float *const b, uint16_t 
  * \param L Output L matrix so that A = L*L^T (transposed)
  * \param row Number of rows and columns in A
  **/
-void chol(const float *const A, float *L, uint16_t row);
+void m_chol(const float *const A, float *L, uint16_t row);
+
+#define chol(A, L)                                                                                 \
+	do {                                                                                       \
+		assert(MATRIX_ROWS(L) == MATRIX_ROWS(A));                                          \
+		assert(MATRIX_ROWS(A) == MATRIX_COLS(A));                                          \
+		m_chol(&A[0][0], &L[0][0], MATRIX_ROWS(A));                                        \
+	} while (0)
+
 /**
  * \brief Perform cholesky update on a lower triangular cholesky decomposition
  * \details
