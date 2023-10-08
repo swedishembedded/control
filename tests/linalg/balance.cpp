@@ -15,10 +15,14 @@ extern "C" {
 
 TEST(Main, BalanceSquareMatrix)
 {
-	float A[] = { -0.1, 10.0, -1.0, -5.0 };
-	float Abal[] = { -0.1, 2.5, -4.0, -5.0 };
-	balance(A, 2);
-	for (unsigned int c = 0; c < 4; c++) {
-		ASSERT_FLOAT_EQ(Abal[c], A[c]);
+	float A[2][2] = {{-0.1, 10.0}, {-1.0, -5.0}};
+	float Abal[2][2] = {{-0.1, 2.5}, {-4.0, -5.0}};
+
+	balance(A);
+
+	for (unsigned int i = 0; i < 2; i++) {
+		for (unsigned int j = 0; j < 2; j++) {
+			ASSERT_FLOAT_EQ(Abal[i][j], A[i][j]);
+		}
 	}
 }

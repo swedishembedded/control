@@ -26,19 +26,19 @@ static void prepare(float *A, uint16_t row);
  */
 void eig(const float *const AA, float *wr, float *wi, uint16_t row)
 {
-	float A[row * row];
+	float A[row][row];
 
 	// create a copy since we are modifying it
 	// we don't want to modify the original matrix!
-	memcpy(A, AA, sizeof(A));
+	memcpy(&A[0][0], AA, sizeof(A));
 
 	// Find the eigenvalues
-	balance(A, row);
-	prepare(A, row);
+	balance(A);
+	prepare(&A[0][0], row);
 	// Reset before
 	memset(wr, 0, row * sizeof(float));
 	memset(wi, 0, row * sizeof(float));
-	qr_shift_algorithm(A, wr, wi, row);
+	qr_shift_algorithm(&A[0][0], wr, wi, row);
 }
 
 // Prepare the matrix A for the QR algorithm
@@ -76,10 +76,12 @@ static void prepare(float *A, uint16_t row)
 				if (y != 0.0) {
 					y /= x;
 					*(A + row * i + m - 1) = y;
-					for (j = m; j < row; j++)
+					for (j = m; j < row; j++) {
 						*(A + row * i + j) -= y * *(A + row * m + j);
-					for (j = 0; j < row; j++)
+					}
+					for (j = 0; j < row; j++) {
 						*(A + row * j + m) += y * *(A + row * j + i);
+					}
 				}
 			}
 		}
@@ -106,8 +108,9 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 		do {
 			for (l = nn; l > 0; l--) {
 				s = fabsf(*(A + row * (l - 1) + l - 1)) + fabsf(*(A + row * l + l));
-				if (fabsf(s) < FLT_EPSILON)
+				if (fabsf(s) < FLT_EPSILON) {
 					s = anorm;
+				}
 				if (fabsf(*(A + row * l + l - 1)) + s == s) {
 					*(A + row * l + l - 1) = 0.0f;
 					break;
@@ -139,13 +142,14 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 					nn -= 2;
 				} else {
 					if (its == 30) {
-						//printf("foo many iterations in eig.c");
+						// printf("foo many iterations in eig.c");
 						break;
 					}
 					if (its == 10 || its == 20) {
 						t += x;
-						for (i = 0; i < nn + 1; i++)
+						for (i = 0; i < nn + 1; i++) {
 							*(A + row * i + i) -= x;
+						}
 						s = fabsf(*(A + row * nn + nn - 1)) +
 						    fabsf(*(A + row * (nn - 1) + nn - 2));
 						y = x = 0.75f * s;
@@ -164,29 +168,33 @@ static void qr_shift_algorithm(float *A, float *wr, float *wi, uint16_t row)
 						p /= s;
 						q /= s;
 						r /= s;
-						if (m == l)
+						if (m == l) {
 							break;
+						}
 						u = fabsf(*(A + row * m + m - 1)) *
 						    (fabsf(q) + fabsf(r));
 						v = fabsf(p) *
 						    (fabsf(*(A + row * (m - 1) + m - 1)) +
 						     fabsf(z) +
 						     fabsf(*(A + row * (m + 1) + m + 1)));
-						if (u + v == v)
+						if (u + v == v) {
 							break;
+						}
 					}
 					for (i = m; i < nn - 1; i++) {
 						*(A + row * (i + 2) + i) = 0.0f;
-						if (i != m)
+						if (i != m) {
 							*(A + row * (i + 2) + i - 1) = 0.0f;
+						}
 					}
 					for (k = m; k < nn; k++) {
 						if (k != m) {
 							p = *(A + row * k + k - 1);
 							q = *(A + row * (k + 1) + k - 1);
 							r = 0.0f;
-							if (k != nn - 1)
+							if (k != nn - 1) {
 								r = *(A + row * (k + 2) + k - 1);
+							}
 							x = fabsf(p) + fabsf(q) + fabsf(r);
 							if (x > FLT_EPSILON) {
 								p /= x;

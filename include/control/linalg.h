@@ -429,7 +429,14 @@ int hankel(const float *const V, float *H, uint16_t row_v, uint16_t column_v, ui
  * \param A Square matrix
  * \param row Number of rows and columns in A
  **/
-void balance(float A[], uint16_t row);
+void m_balance(float *A, uint16_t row);
+
+#define balance(A)                                                                                 \
+	do {                                                                                       \
+		assert(MATRIX_ROWS(A) == MATRIX_COLS(A));                                          \
+		m_balance(&A[0][0], MATRIX_ROWS(A));                                               \
+	} while (0)
+
 /**
  * \brief Find eigenvalues from a general matrix
  * \details

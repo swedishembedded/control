@@ -15,7 +15,7 @@
  * Balance a real matrix
  * A [m*n]
  */
-void balance(float A[], uint16_t row)
+void m_balance(float A[], uint16_t row)
 {
 	uint16_t i, j, last = 0;
 	float s, r, g, f, c, sqrdx;
@@ -25,11 +25,12 @@ void balance(float A[], uint16_t row)
 		last = 1;
 		for (i = 0; i < row; i++) {
 			r = c = 0.0f;
-			for (j = 0; j < row; j++)
+			for (j = 0; j < row; j++) {
 				if (j != i) {
 					c += fabsf(*(A + row * j + i));
 					r += fabsf(*(A + row * i + j));
 				}
+			}
 			if (c != 0.0 && r != 0.0) {
 				g = r / 2.0f;
 				f = 1.0f;
@@ -46,10 +47,12 @@ void balance(float A[], uint16_t row)
 				if ((c + r) / f < 0.95f * s) {
 					last = 0;
 					g = 1.0f / f;
-					for (j = 0; j < row; j++)
+					for (j = 0; j < row; j++) {
 						*(A + row * i + j) *= g;
-					for (j = 0; j < row; j++)
+					}
+					for (j = 0; j < row; j++) {
 						*(A + row * j + i) *= f;
+					}
 				}
 			}
 		}
