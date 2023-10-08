@@ -31,7 +31,7 @@ static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, 
 	//memset(T, 0, YDIM * ADIM * sizeof(float));
 
 	// Regular T = C*A^(1+i)
-	mul(T, C, A, YDIM, ADIM, ADIM, ADIM);
+	m_mul(T, C, A, YDIM, ADIM, ADIM, ADIM);
 
 	// Insert temporary T into PHI
 	memcpy(PHI, T, YDIM * ADIM * sizeof(float));
@@ -40,8 +40,8 @@ static void obsv(float PHI[], float A[], float C[], uint8_t ADIM, uint8_t YDIM, 
 	float A_pow[ADIM * ADIM];
 
 	for (uint8_t i = 1; i < HORIZON; i++) {
-		mul(A_pow, A, A_copy, ADIM, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
-		mul(T, C, A_pow, YDIM, ADIM, ADIM, ADIM); // T = C*A^(1+i)
+		m_mul(A_pow, A, A_copy, ADIM, ADIM, ADIM, ADIM); //  Matrix power A_pow = A*A_copy
+		m_mul(T, C, A_pow, YDIM, ADIM, ADIM, ADIM); // T = C*A^(1+i)
 		memcpy(PHI + i * YDIM * ADIM, T,
 		       YDIM * ADIM * sizeof(float)); // Insert temporary T into PHI
 		memcpy(A_copy, A_pow, ADIM * ADIM * sizeof(float)); // A_copy <- A_pow
@@ -59,16 +59,16 @@ static void cab(float GAMMA[], float PHI[], const float *const A, float B[], flo
 	// First create the initial C*A^0*B == C*I*B == C*B
 	float CB[YDIM * RDIM];
 
-	mul(CB, C, B, YDIM, ADIM, ADIM, RDIM);
+	m_mul(CB, C, B, YDIM, ADIM, ADIM, RDIM);
 
 	// Take the transpose of CB so it will have dimension RDIM*YDIM instead
-	tran(CB, CB, YDIM, RDIM);
+	m_tran(CB, CB, YDIM, RDIM);
 
 	// Create the CAB matrix from PHI*B
 	float PHIB[HORIZON * YDIM * RDIM];
 
-	mul(PHIB, PHI, B, HORIZON * YDIM, ADIM, ADIM, RDIM); // CAB = PHI*B
-	tran(PHIB, PHIB, HORIZON * YDIM, RDIM);
+	m_mul(PHIB, PHI, B, HORIZON * YDIM, ADIM, ADIM, RDIM); // CAB = PHI*B
+	m_tran(PHIB, PHIB, HORIZON * YDIM, RDIM);
 
 	/*
 	 * We insert GAMMA = [CB PHI;
@@ -87,7 +87,7 @@ static void cab(float GAMMA[], float PHI[], const float *const A, float B[], flo
 	}
 
 	// Transpose of gamma
-	tran(GAMMA, GAMMA, HORIZON * RDIM, HORIZON * YDIM);
+	m_tran(GAMMA, GAMMA, HORIZON * RDIM, HORIZON * YDIM);
 }
 
 int mpc(float A[], float B[], float C[], float x[], float u[], const float *const r, uint8_t ADIM,
@@ -132,7 +132,7 @@ int mpc(float A[], float B[], float C[], float x[], float u[], const float *cons
 	// PHI_vec = PHI*x
 	float PHI_vec[HORIZON * YDIM];
 
-	mul(PHI_vec, PHI, x, HORIZON * YDIM, ADIM, ADIM, 1);
+	m_mul(PHI_vec, PHI, x, HORIZON * YDIM, ADIM, ADIM, 1);
 
 	// R_PHI_vec = R_vec - PHI_vec
 	float R_PHI_vec[HORIZON * YDIM];
@@ -145,31 +145,31 @@ int mpc(float A[], float B[], float C[], float x[], float u[], const float *cons
 	float GAMMAT[HORIZON * YDIM * HORIZON * RDIM];
 
 	memcpy(GAMMAT, GAMMA, HORIZON * YDIM * HORIZON * RDIM * sizeof(float)); // GAMMA -> GAMMAT
-	tran(GAMMAT, GAMMAT, HORIZON * YDIM, HORIZON * RDIM);
+	m_tran(GAMMAT, GAMMAT, HORIZON * YDIM, HORIZON * RDIM);
 
 	// b = GAMMAT*R_PHI_vec
 	float b[HORIZON * YDIM];
 
 	//memset(b, 0, HORIZON * YDIM * sizeof(float));
-	mul(b, GAMMAT, R_PHI_vec, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM, 1);
+	m_mul(b, GAMMAT, R_PHI_vec, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM, 1);
 
 	// GAMMATGAMMA = GAMMAT*GAMMA = A
 	float GAMMATGAMMA[HORIZON * RDIM * HORIZON * RDIM];
 
 	//memset(GAMMATGAMMA, 0, HORIZON * RDIM*HORIZON * RDIM * sizeof(float));
-	mul(GAMMATGAMMA, GAMMAT, GAMMA, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM,
-	    HORIZON * RDIM);
+	m_mul(GAMMATGAMMA, GAMMAT, GAMMA, HORIZON * RDIM, HORIZON * YDIM, HORIZON * YDIM,
+	      HORIZON * RDIM);
 
 	// Copy A and call it AT
 	float AT[HORIZON * RDIM * HORIZON * RDIM];
 
 	memcpy(AT, GAMMATGAMMA, HORIZON * RDIM * HORIZON * RDIM * sizeof(float)); // A -> AT
-	tran(AT, AT, HORIZON * RDIM, HORIZON * RDIM);
+	m_tran(AT, AT, HORIZON * RDIM, HORIZON * RDIM);
 
 	// Now create c = AT*R_PHI_vec
 	float c[HORIZON * YDIM];
 
-	mul(c, AT, R_PHI_vec, HORIZON * RDIM, HORIZON * RDIM, HORIZON * RDIM, 1);
+	m_mul(c, AT, R_PHI_vec, HORIZON * RDIM, HORIZON * RDIM, HORIZON * RDIM, 1);
 
 	// Do linear programming now
 	linprog(c, GAMMATGAMMA, b, R_vec, HORIZON * YDIM, HORIZON * RDIM, 0, ITERATION_LIMIT);

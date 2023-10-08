@@ -118,7 +118,7 @@ TEST(Main, RLS)
 		EXPECT_NEAR(y[0], output[i], 1e-2);
 		// simulate the identified model
 		kalman(x, A, x, B, u, K, y, C, ADIM, YDIM, RDIM);
-		mul(y, C, x, YDIM, ADIM, ADIM, 1);
+		m_mul(y, C, x, YDIM, ADIM, ADIM, 1);
 	}
 }
 

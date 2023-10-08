@@ -179,7 +179,7 @@ TEST(Main, ERA)
 		u_sim[1] = u_impulse[N_SAMPLES + c];
 		// run simulation (K is zero so we are just propagating here!)
 		kalman(x_sim, A_plant, x_sim, B_plant, u_sim, K, y_sim, C_plant, ADIM, YDIM, RDIM);
-		mul(y_sim, C_plant, x_sim, 2, 2, 2, 1);
+		m_mul(y_sim, C_plant, x_sim, 2, 2, 2, 1);
 		// store an entry in output
 		y_impulse[c] = y_sim[0];
 		y_impulse[N_SAMPLES + c] = y_sim[1];
@@ -253,11 +253,11 @@ TEST(Main, ERA)
 		// simulate plant model to get expected value
 		kalman(x_plant, A_plant, x_plant, B_plant, u_sim, K, y_plant, C_plant, ADIM, YDIM,
 		       RDIM);
-		mul(y_plant, C_plant, x_plant, 2, 2, 2, 1);
+		m_mul(y_plant, C_plant, x_plant, 2, 2, 2, 1);
 
 		// simulate the identified model
 		kalman(x_sim, A, x_sim, B, u_sim, K, y_sim, C, ADIM, YDIM, RDIM);
-		mul(y_sim, C, x_sim, 2, 2, 2, 1);
+		m_mul(y_sim, C, x_sim, 2, 2, 2, 1);
 	}
 	// OKID is not very exact. Either there is something wrong with implementation
 	// or it is just inferior to other methods.

@@ -26,7 +26,7 @@ void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_upd
 
 	memcpy(x, xx, sizeof(x));
 
-	tran(L, L, row, row);
+	m_tran(L, L, row, row);
 
 	for (int i = 0; i < row; i++) {
 		alpha = x[i] / L[row * i + i];
@@ -69,5 +69,5 @@ void cholupdate(float *L, const float *const xx, uint16_t row, bool rank_one_upd
 		}
 	}
 
-	tran(L, L, row, row);
+	m_tran(L, L, row, row);
 }

@@ -68,7 +68,7 @@ TEST(Main, LQI)
 			kalman(x, A, x, B, u, K, y, C, ADIM, YDIM, RDIM);
 
 			// Fake measurement. You can add noise here
-			mul(y, C, x, YDIM, ADIM, ADIM, 1);
+			m_mul(y, C, x, YDIM, ADIM, ADIM, 1);
 		}
 	}
 	ASSERT_NEAR(r[0], y[0], 1e-3);

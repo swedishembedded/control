@@ -76,7 +76,7 @@ int okid_era(float *A, float *B, float *C, uint8_t row_a, const float *const y,
 	}
 
 	// U = S^(-1/2)*U^T
-	tran(U, U, row_h, column_h);
+	m_tran(U, U, row_h, column_h);
 	for (int i = 0; i < row_h; i++) {
 		for (int j = 0; j < column_h; j++) {
 			U[j * row_h + i] *= sqrtf(1.0f / S[j]);
@@ -84,10 +84,10 @@ int okid_era(float *A, float *B, float *C, uint8_t row_a, const float *const y,
 	}
 
 	// Create A matrix: T = H*V
-	mul(Temp, H, V, row_h, column_h, column_h, column_h);
+	m_mul(Temp, H, V, row_h, column_h, column_h, column_h);
 
 	// Now, multiply V = U(column_h, row_h)*Temp(row_h, column_h). U is transpose!
-	mul(V, U, Temp, column_h, row_h, row_h, column_h);
+	m_mul(V, U, Temp, column_h, row_h, row_h, column_h);
 
 	// Get the elements of V -> A
 	cut(A, V, column_h, column_h, 0, 0, row_a, row_a);

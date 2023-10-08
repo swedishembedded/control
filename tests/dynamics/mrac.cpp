@@ -48,7 +48,7 @@ TEST(Main, MRAC)
 	for (unsigned int c = 0; c < 10000; c++) {
 		// simulate the system (K == 0)
 		kalman(x, A, x, B, u, K, y, C, ADIM, YDIM, RDIM);
-		mul(y, C, x, YDIM, ADIM, ADIM, 1);
+		m_mul(y, C, x, YDIM, ADIM, ADIM, 1);
 
 		mrac(LIMIT, LEARNING, y, u, r, I1, I2, RDIM);
 	}

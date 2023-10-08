@@ -38,7 +38,7 @@ TEST(Main, PID)
 	for (unsigned int c = 0; c < 4; c++) {
 		u[0] = pid_step(&pid, (r[0] - y[0]) * Ts);
 		kalman(x, A, x, B, u, K, y, C, 1, 1, 1);
-		mul(y, C, x, 1, 1, 1, 1);
+		m_mul(y, C, x, 1, 1, 1, 1);
 	}
 
 	// 0.6326 -> 63% of full scale

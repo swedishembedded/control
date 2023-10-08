@@ -15,13 +15,15 @@ extern "C" {
 
 TEST(Main, MatrixAddition)
 {
-	float A[] = { 1, -2, 4, 5 };
-	float B[] = { -2, -8, 2, 1 };
-	float A_exp[] = { -1, -10, 6, 6 };
+	float A[2][2] = { { 1, -2 }, { 4, 5 } };
+	float B[2][2] = { { -2, -8 }, { 2, 1 } };
+	float A_exp[2][2] = { { -1, -10 }, { 6, 6 } };
 
-	add(A, A, B, 2, 2);
+	add(A, A, B);
 
-	for (unsigned int c = 0; c < 4; c++) {
-		ASSERT_FLOAT_EQ(A[c], A_exp[c]);
+	for (unsigned int i = 0; i < 2; i++) {
+		for (unsigned int j = 0; j < 2; j++) {
+			ASSERT_FLOAT_EQ(A[i][j], A_exp[i][j]);
+		}
 	}
 }

@@ -56,7 +56,7 @@ int qr(const float *const A, float *Q, float *R, uint16_t row_a, uint16_t column
 
 		// TODO: investigate why no transpose
 		// WW = W*W'
-		mul(WW, W, W, row_a, 1, 1, row_a);
+		m_mul(WW, W, W, row_a, 1, 1, row_a);
 
 		// Fill Hi matrix
 		for (uint16_t i = 0; i < row_a_row_a; i++)
@@ -68,18 +68,18 @@ int qr(const float *const A, float *Q, float *R, uint16_t row_a, uint16_t column
 
 		// HiH = Hi * H -> HiH = H
 		if (!only_compute_R) {
-			mul(HiH, Hi, H, row_a, row_a, row_a, row_a);
+			m_mul(HiH, Hi, H, row_a, row_a, row_a, row_a);
 			memcpy(H, HiH, row_a_row_a * sizeof(float));
 		}
 
 		// HiR = Hi * R -> HiR = R
-		mul(HiR, Hi, R, row_a, row_a, row_a, column_a);
+		m_mul(HiR, Hi, R, row_a, row_a, row_a, column_a);
 		memcpy(R, HiR, row_a * column_a * sizeof(float));
 	}
 
 	if (!only_compute_R) {
 		// If H can not be inverted then we can not compute Q
-		if (inv(H, H, row_a) != 0)
+		if (m_inv(H, H, row_a) != 0)
 			return -ENOTSUP;
 		memcpy(Q, H, row_a_row_a * sizeof(float));
 	}

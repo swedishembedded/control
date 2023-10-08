@@ -56,7 +56,7 @@ void linprog(float c[], float A[], float b[], float x[], uint8_t row_a, uint8_t 
 		opti(c, A, b, x, row_a, column_a, max_or_min, iteration_limit);
 	} else {
 		// Minimization
-		tran(A, A, row_a, column_a);
+		m_tran(A, A, row_a, column_a);
 
 		opti(b, A, c, x, column_a, row_a, max_or_min, iteration_limit);
 	}

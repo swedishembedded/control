@@ -16,6 +16,6 @@ void linsolve_chol(const float *const A, float *x, const float *const b, uint16_
 
 	chol(A, L, row);
 	linsolve_lower_triangular(L, y, b, row);
-	tran(L, L, row, row);
+	m_tran(L, L, row, row);
 	linsolve_upper_triangular(L, x, y, row);
 }

@@ -40,7 +40,7 @@ void expm(const float *const A, float *exp, uint16_t row)
 			E[i] = E[i] + F[i];
 		}
 		// F = A*F/k (we are borrowing T)
-		mul(T, A, F, row, row, row, row);
+		m_mul(T, A, F, row, row, row, row);
 		for (uint16_t i = 0; i < row * row; i++) {
 			F[i] = T[i] / (float)k;
 		}

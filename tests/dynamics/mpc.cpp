@@ -36,7 +36,7 @@ TEST(Main, MPC)
 	for (int i = 0; i < 200; i++) {
 		mpc(A, B, C, x, u, r, ADIM, YDIM, RDIM, HORIZON, ITERATION_LIMIT, 1);
 		kalman(x, A, x, B, u, K, y, C, ADIM, YDIM, RDIM);
-		mul(y, C, x, YDIM, ADIM, ADIM, 1);
+		m_mul(y, C, x, YDIM, ADIM, ADIM, 1);
 	}
 
 	EXPECT_NEAR(r[0], y[0], 1e-3);

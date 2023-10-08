@@ -38,7 +38,7 @@ TEST(Main, Solve1D)
 	printf("Markov parameters:\n");
 	print(s, 1, 5);
 
-	mul(y_hat, t, s, 5, 5, 5, 1);
+	m_mul(y_hat, t, s, 5, 5, 5, 1);
 
 	for (int c = 0; c < 5; c++) {
 		EXPECT_NEAR(y_hat[c], y[c], 1e-6);
@@ -77,7 +77,7 @@ TEST(Main, Solve1x10)
 	printf("Markov parameters:\n");
 	print(s, 1, 10);
 
-	mul(y_hat, t, s, 10, 10, 10, 1);
+	m_mul(y_hat, t, s, 10, 10, 10, 1);
 	printf("Y:\n");
 	print(y, 1, 10);
 	printf("Y_hat:\n");
@@ -134,8 +134,8 @@ TEST(Main, Solve2x10)
 	printf("Markov parameters:\n");
 	print(s, 2, 10);
 
-	mul(y_hat, t, s, 10, 10, 10, 1);
-	mul(y_hat + 10, t + 10 * 10, s + 10, 10, 10, 10, 1);
+	m_mul(y_hat, t, s, 10, 10, 10, 1);
+	m_mul(y_hat + 10, t + 10 * 10, s + 10, 10, 10, 10, 1);
 
 	printf("y_hat:\n");
 	print(y_hat, 2, 10);

@@ -65,10 +65,10 @@ void model_dc_motor_step(struct model_dc_motor *self)
 	float Cx[1];
 	float Du[1];
 
-	mul(Ax, self->A, self->x, 2, 2, 2, 1);
-	mul(Bu, self->B, self->u, 2, 1, 1, 1);
-	mul(Cx, self->C, self->x, 1, 2, 2, 1);
-	mul(Du, self->D, self->u, 1, 1, 1, 1);
+	m_mul(Ax, self->A, self->x, 2, 2, 2, 1);
+	m_mul(Bu, self->B, self->u, 2, 1, 1, 1);
+	m_mul(Cx, self->C, self->x, 1, 2, 2, 1);
+	m_mul(Du, self->D, self->u, 1, 1, 1, 1);
 	self->x[0] = Ax[0] + Bu[0];
 	self->x[1] = Ax[1] + Bu[1];
 	self->y[0] = Cx[0] + Du[0];

@@ -18,7 +18,7 @@ void linsolve_qr(const float *const A, float *x, const float *const b, uint16_t 
 	float QTb[row];
 
 	qr(A, Q, R, row, column, false);
-	tran(Q, Q, row, row); // Do transpose Q -> Q^T
-	mul(QTb, Q, b, row, row, row, 1); // Q^Tb = Q^T*b
+	m_tran(Q, Q, row, row); // Do transpose Q -> Q^T
+	m_mul(QTb, Q, b, row, row, row, 1); // Q^Tb = Q^T*b
 	linsolve_upper_triangular(R, x, QTb, column);
 }

@@ -11,8 +11,8 @@
 
 #include <errno.h>
 
-int mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
-	uint16_t row_b, uint16_t column_b)
+int m_mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
+	  uint16_t row_b, uint16_t column_b)
 {
 	// Data matrix
 	const float *data_a;

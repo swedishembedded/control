@@ -15,20 +15,22 @@ extern "C" {
 
 TEST(Main, CholeskyDecomposition)
 {
-	float A[] = { 5, 11, 11, 25 };
-	float L[4] = { 0 };
-	float Lt[4] = { 0 };
-	float Ar[4] = { 0 };
+	float A[2][2] = { { 5, 11 }, { 11, 25 } };
+	float L[2][2] = { { 0, 0 }, { 0, 0 } };
+	float Lt[2][2] = { { 0, 0 }, { 0, 0 } };
+	float Ar[2][2] = { { 0, 0 }, { 0, 0 } };
 
 	// perform cholesky decomposition
-	chol(A, L, 2);
+	chol(&A[0][0], &L[0][0], 2);
 	// copy the L matrix and transpose the copy
-	memcpy(Lt, L, sizeof(Lt));
-	tran(Lt, Lt, 2, 2);
+	memcpy(&Lt[0][0], &L[0][0], sizeof(Lt));
+	tran(Lt, Lt);
 	// multiply L with L transposed to get A
-	mul(Ar, L, Lt, 2, 2, 2, 2);
+	mul(Ar, L, Lt);
 	// check result
-	for (unsigned int c = 0; c < 4; c++) {
-		ASSERT_FLOAT_EQ(A[c], Ar[c]);
+	for (unsigned int i = 0; i < 2; i++) {
+		for (unsigned int j = 0; j < 2; j++) {
+			ASSERT_FLOAT_EQ(A[i][j], Ar[i][j]);
+		}
 	}
 }

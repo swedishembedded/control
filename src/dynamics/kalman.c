@@ -20,11 +20,11 @@ void kalman(float *xout, const float *const A, const float *x, const float *cons
 	float KCx[ADIM * 1];
 	float Ky[ADIM * 1];
 
-	mul(Ax, A, x, ADIM, ADIM, ADIM, 1);
-	mul(Bu, B, u, ADIM, RDIM, RDIM, 1);
-	mul(Cx, C, x, YDIM, ADIM, ADIM, 1);
-	mul(KCx, K, Cx, ADIM, YDIM, YDIM, 1);
-	mul(Ky, K, y, ADIM, YDIM, YDIM, 1);
+	m_mul(Ax, A, x, ADIM, ADIM, ADIM, 1);
+	m_mul(Bu, B, u, ADIM, RDIM, RDIM, 1);
+	m_mul(Cx, C, x, YDIM, ADIM, ADIM, 1);
+	m_mul(KCx, K, Cx, ADIM, YDIM, YDIM, 1);
+	m_mul(Ky, K, y, ADIM, YDIM, YDIM, 1);
 
 	// Estimate new discrete state
 	// x = Ax + Bu + K * (y - Cx)

@@ -11,7 +11,7 @@
 
 #include <string.h>
 
-void tran(float *At, const float *const A, uint16_t row, uint16_t column)
+void m_tran(float *At, const float *const A, uint16_t row, uint16_t column)
 {
 	float B[row * column];
 	const float *ptr_A = A;

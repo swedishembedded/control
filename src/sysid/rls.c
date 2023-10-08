@@ -36,12 +36,12 @@ static void recursive(unsigned int NP, unsigned int NZ, unsigned int NZE, float 
 	float phiTP[NP + NZ + NZE];
 
 	// We pretend that phi is transpose
-	mul(phiTP, phi, P, 1, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE);
+	m_mul(phiTP, phi, P, 1, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE);
 
 	// Step 2: Pphi = P*phi -> Vector
 	float Pphi[NP + NZ + NZE];
 
-	mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
+	m_mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
 
 	// Step 3: l + phiTP*phi = l + phi'*P*phi
 	sum = 0;
@@ -53,7 +53,7 @@ static void recursive(unsigned int NP, unsigned int NZ, unsigned int NZE, float 
 	// Step 4: Pphi*phiTP = P*phi*phi'*P -> Matrix
 	float PphiphiTP[(NP + NZ + NZE) * (NP + NZ + NZE)];
 
-	mul(PphiphiTP, Pphi, phiTP, NP + NZ + NZE, 1, 1, NP + NZ + NZE);
+	m_mul(PphiphiTP, Pphi, phiTP, NP + NZ + NZE, 1, 1, NP + NZ + NZE);
 
 	// Step 5: Compute P = 1/l*(P - 1/sum*PphiphiTP);
 	for (unsigned int i = 0; i < (NP + NZ + NZE) * (NP + NZ + NZE); i++) {
@@ -61,7 +61,7 @@ static void recursive(unsigned int NP, unsigned int NZ, unsigned int NZE, float 
 	}
 
 	// Compute theta = theta + P*phi*error;
-	mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
+	m_mul(Pphi, P, phi, NP + NZ + NZE, NP + NZ + NZE, NP + NZ + NZE, 1);
 
 	// Compute theta = theta + Pphi*error
 	for (unsigned int i = 0; i < NP + NZ + NZE; i++) {

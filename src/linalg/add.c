@@ -8,13 +8,12 @@
  */
 
 #include "control/linalg.h"
-
 #include <string.h>
 
 /*
  * C = A + B
  */
-void add(float *C, const float *const A, const float *const B, uint16_t row, uint16_t column)
+void m_add(float *C, const float *const A, const float *const B, uint16_t row, uint16_t column)
 {
 	float Cr[row * column];
 

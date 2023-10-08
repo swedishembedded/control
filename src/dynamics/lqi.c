@@ -47,9 +47,9 @@ void lqi(float *u, const float *const L, const float *const x, const float *cons
 	float Lx[RDIM * 1];
 	float Lixi[RDIM];
 
-	mul(Lx, L, x, RDIM, ADIM, ADIM, 1);
+	m_mul(Lx, L, x, RDIM, ADIM, ADIM, 1);
 	integral(ANTI_WINDUP, xi, err, RDIM);
-	mul(Lixi, Li, xi, RDIM, YDIM, YDIM, 1);
+	m_mul(Lixi, Li, xi, RDIM, YDIM, YDIM, 1);
 
 	// Now comput the control action
 	for (uint8_t i = 0; i < RDIM; i++) {

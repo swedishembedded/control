@@ -133,7 +133,7 @@ static void create_state_estimation_error_covariance_matrix(float S[], float W[]
 			AT[i * M + j] = sqrtf(R[i * L + j - K]);
 
 	/* We need to do transpose on A according to the SR-UKF paper */
-	tran(AT, AT, L, M);
+	m_tran(AT, AT, L, M);
 
 	/* Solve [Q, R_] = qr(A') but we only need R_ matrix */
 	qr(AT, Q, R_, M, L, true);
@@ -187,12 +187,12 @@ static void create_state_cross_covariance_matrix(float P[], float W[], float X[]
 		diagonal_W[i * N + i] = W[i];
 
 	/* Do P = X*diagonal_W*Y' */
-	tran(Y, Y, L, N);
+	m_tran(Y, Y, L, N);
 
 	float diagonal_WY[N * L];
 
-	mul(diagonal_WY, diagonal_W, Y, N, N, N, L);
-	mul(P, X, diagonal_WY, L, N, N, L);
+	m_mul(diagonal_WY, diagonal_W, Y, N, N, N, L);
+	m_mul(P, X, diagonal_WY, L, N, N, L);
 }
 
 static void update_state_covarariance_matrix_and_state_estimation_vector(float S[], float xhat[],
@@ -204,20 +204,20 @@ static void update_state_covarariance_matrix_and_state_estimation_vector(float S
 	float SyT[L * L];
 
 	memcpy(SyT, Sy, L * L * sizeof(float));
-	tran(SyT, SyT, L, L);
+	m_tran(SyT, SyT, L, L);
 
 	/* Multiply Sy and Sy' to Sy'Sy */
 	float SyTSy[L * L];
 
-	mul(SyTSy, SyT, Sy, L, L, L, L);
+	m_mul(SyTSy, SyT, Sy, L, L, L, L);
 
 	/* Take inverse of Sy'Sy - Inverse is using LUP-decomposition */
-	inv(SyTSy, SyTSy, L);
+	m_inv(SyTSy, SyTSy, L);
 
 	/* Compute kalman gain K from Sy'Sy * K = Pxy => K = Pxy * inv(SyTSy) */
 	float K[L * L];
 
-	mul(K, Pxy, SyTSy, L, L, L, L);
+	m_mul(K, Pxy, SyTSy, L, L, L, L);
 
 	/* Compute xhat = xhat + K*(y - yhat) */
 	float yyhat[L];
@@ -225,14 +225,14 @@ static void update_state_covarariance_matrix_and_state_estimation_vector(float S
 
 	for (uint8_t i = 0; i < L; i++)
 		yyhat[i] = y[i] - yhat[i];
-	mul(Ky, K, yyhat, L, L, L, 1);
+	m_mul(Ky, K, yyhat, L, L, L, 1);
 	for (uint8_t i = 0; i < L; i++)
 		xhat[i] = xhat[i] + Ky[i];
 
 	/* Compute U = K*Sy */
 	float U[L * L];
 
-	mul(U, K, Sy, L, L, L, L);
+	m_mul(U, K, Sy, L, L, L, L);
 
 	/* Compute S = cholupdate(S, Uk, -1) because Uk is a vector and U is a matrix */
 	float Uk[L];

@@ -11,12 +11,16 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
 
 #define MAX_ITERATION_COUNT_SVD 30 // Maximum number of iterations for svd_jacobi_one_sided.c
 
 #if !defined(CONSTRAIN_FLOAT)
 #define CONSTRAIN_FLOAT(n, low, high) (((n) > (high)) ? (high) : (((n) < (low)) ? (low) : (n)))
 #endif
+
+#define MATRIX_ROWS(a) (sizeof(a) / sizeof(a[0]))
+#define MATRIX_COLS(a) (sizeof(a[0]) / sizeof(a[0][0]))
 
 /**
  * \brief Element-wise addition of two matrices
@@ -35,7 +39,18 @@
  * \param row Number of rows
  * \param column Number of columns
  **/
-void add(float *C, const float *const A, const float *const B, uint16_t row, uint16_t column);
+void m_add(float *C, const float *const A, const float *const B, uint16_t row, uint16_t column);
+
+#define add(C, A, B)                                                                               \
+	do {                                                                                       \
+		assert(MATRIX_ROWS(C) == MATRIX_ROWS(A) && MATRIX_ROWS(C) == MATRIX_ROWS(B));      \
+		assert(MATRIX_ROWS(C) == MATRIX_ROWS(A) && MATRIX_ROWS(C) == MATRIX_ROWS(B));      \
+		assert(MATRIX_ROWS(C) == MATRIX_ROWS(A) && MATRIX_ROWS(C) == MATRIX_ROWS(B));      \
+		assert(MATRIX_COLS(C) == MATRIX_COLS(A) && MATRIX_COLS(C) == MATRIX_COLS(B));      \
+		assert(MATRIX_COLS(C) == MATRIX_COLS(A) && MATRIX_COLS(C) == MATRIX_COLS(B));      \
+		assert(MATRIX_COLS(C) == MATRIX_COLS(A) && MATRIX_COLS(C) == MATRIX_COLS(B));      \
+		m_add(&C[0][0], &A[0][0], &B[0][0], MATRIX_ROWS(C), MATRIX_COLS(C));               \
+	} while (0)
 
 /**
  * \brief Matrix inverse
@@ -53,7 +68,15 @@ void add(float *C, const float *const A, const float *const B, uint16_t row, uin
  * \retval 0 Success
  * \retval -ENOTSUP Inverse not possible with given matrix
  **/
-int inv(float *Ai, const float *const A, uint16_t row);
+int m_inv(float *Ai, const float *const A, uint16_t row);
+
+#define inv(Ai, A)                                                                                 \
+	({                                                                                         \
+		assert(MATRIX_ROWS(A) == MATRIX_COLS(A));                                          \
+		assert(MATRIX_ROWS(A) == MATRIX_COLS(Ai));                                         \
+		assert(MATRIX_COLS(A) == MATRIX_COLS(Ai));                                         \
+		m_inv(&Ai[0][0], &A[0][0], MATRIX_ROWS(A));                                        \
+	})
 
 /**
  * \brief This solves Ax = b.
@@ -81,7 +104,15 @@ void linsolve_upper_triangular(const float *const A, float *x, const float *cons
  * \param row Number of rows in A and columns in At
  * \param column Number of columns in A and rows in At
  **/
-void tran(float *At, const float *const A, uint16_t row, uint16_t column);
+void m_tran(float *At, const float *const A, uint16_t row, uint16_t column);
+
+#define tran(At, A)                                                                                \
+	do {                                                                                       \
+		assert(MATRIX_ROWS(At) == MATRIX_COLS(A));                                         \
+		assert(MATRIX_COLS(At) == MATRIX_ROWS(A));                                         \
+		m_tran(&At[0][0], &A[0][0], MATRIX_ROWS(A), MATRIX_COLS(A));                       \
+	} while (0)
+
 /**
  * \brief C = A * B
  * \param C Ourput Matrix [row_a*column_b]
@@ -92,8 +123,18 @@ void tran(float *At, const float *const A, uint16_t row, uint16_t column);
  * \param row_b Number of rows in B
  * \param column_b Number of columns in B (and rows in C)
  **/
-int mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
-	uint16_t row_b, uint16_t column_b);
+int m_mul(float *C, const float *const A, const float *const B, uint16_t row_a, uint16_t column_a,
+	  uint16_t row_b, uint16_t column_b);
+
+#define mul(C, A, B)                                                                               \
+	do {                                                                                       \
+		assert(MATRIX_ROWS(C) == MATRIX_ROWS(A));                                          \
+		assert(MATRIX_COLS(C) == MATRIX_COLS(B));                                          \
+		assert(MATRIX_ROWS(B) == MATRIX_COLS(A));                                          \
+		m_mul(&C[0][0], &A[0][0], &B[0][0], MATRIX_ROWS(A), MATRIX_COLS(A),                \
+		      MATRIX_ROWS(B), MATRIX_COLS(B));                                             \
+	} while (0);
+
 /**
  * \brief Singular Value Decomposition A = USV^T (Economy mode)
  * \details

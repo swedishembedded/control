@@ -42,7 +42,7 @@ static int solve(const float *const LU, float *x, float *b, uint8_t *P, uint16_t
 	return 0;
 }
 
-int inv(float *Ai_out, const float *const A, uint16_t row)
+int m_inv(float *Ai_out, const float *const A, uint16_t row)
 {
 	// Create temporary matrix and status variable
 	float tmpvec[row];
@@ -68,7 +68,7 @@ int inv(float *Ai_out, const float *const A, uint16_t row)
 	}
 
 	// Transpose result
-	tran(Ai, Ai, row, row);
+	m_tran(Ai, Ai, row, row);
 
 	memcpy(Ai_out, Ai, sizeof(float) * row * row);
 

@@ -70,15 +70,15 @@ static void tikhonov(const float *const A, const float *const b, float *ATA, flo
 	float AT[column_a * row_a]; // Same dimension as A, just swapped rows and column
 
 	memcpy(AT, A, column_a * row_a * sizeof(float)); // Copy A -> AT
-	tran(AT, AT, row_a, column_a); // Now turn the values of AT to transpose
+	m_tran(AT, AT, row_a, column_a); // Now turn the values of AT to transpose
 
 	// ATb = AT*b
 	memset(ATb, 0, row_a * sizeof(float));
-	mul(ATb, AT, b, column_a, row_a, row_a, 1);
+	m_mul(ATb, AT, b, column_a, row_a, row_a, 1);
 
 	// ATA = AT*A
 	memset(ATA, 0, column_a * column_a * sizeof(float));
-	mul(ATA, AT, A, column_a, row_a, row_a, column_a);
+	m_mul(ATA, AT, A, column_a, row_a, row_a, column_a);
 
 	// ATA = ATA + alpha*I. Don't need identity matrix here because we only add on diagonal
 	for (uint16_t i = 0; i < column_a; i++)

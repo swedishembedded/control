@@ -29,7 +29,7 @@ void pinv(float *Ai, const float *const A, uint16_t row, uint16_t column)
 	}
 
 	// Transpose U'
-	tran(U, U, row, column);
+	m_tran(U, U, row, column);
 
 	// U = S*U'
 	for (uint16_t i = 0; i < row; i++) {
@@ -39,5 +39,5 @@ void pinv(float *Ai, const float *const A, uint16_t row, uint16_t column)
 	}
 
 	// Do pinv now: A = V*U
-	mul(Ai, V, U, column, column, column, row);
+	m_mul(Ai, V, U, column, column, column, row);
 }

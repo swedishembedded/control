@@ -110,11 +110,11 @@ TEST(Main, SvdGolubReinsch)
 	}
 
 	// SV = S*V'
-	tran(V, V, 4, 4);
+	m_tran(V, V, 4, 4);
 
-	mul(SV, St, V, 4, 4, 4, 4);
+	m_mul(SV, St, V, 4, 4, 4, 4);
 	// A = U * SV
-	mul(Asvd, U, SV, 6, 4, 4, 4);
+	m_mul(Asvd, U, SV, 6, 4, 4, 4);
 
 	for (unsigned int c = 0; c < 6 * 4; c++) {
 		ASSERT_NEAR(A[c], Asvd[c], 1e-3);
